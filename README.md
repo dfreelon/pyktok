@@ -24,36 +24,36 @@ Pyktok relies on the following packages:
 **Usage**
 
 ```python
-    import pyktok as pyk
+import pyktok as pyk
     
-    # download a single TikTok video and one line of metadata to the file "test_data.csv"
+# download a single TikTok video and one line of metadata to the file "test_data.csv"
     
-    pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
-                    True,
-                    'video_data.csv')
+pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
+	        True,
+                video_data.csv')
     
-    # download another TikTok video, add its metadata to the same file as above, and create a new file containing comment data
+# download another TikTok video, add its metadata to the same file as above, and create a new file containing comment data
     
-    pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
-                    True,
-                    'video_data.csv',
-                    'comment_data.csv')
+pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
+	        True,
+                'video_data.csv',
+                'comment_data.csv')
     
-    # get a list of URLs of up to 30 of a user's most recent videos
+# get a list of URLs of up to 30 of a user's most recent videos
     
-    tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok')
+tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok')
     
-    #download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 0 to a higher number to increase the number of seconds between executions.
+#download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 0 to a higher number to increase the number of seconds between executions.
     
-    pyk.save_tiktok_multi(tiktok_videos,
-                          False,
-                          'tiktok_data.csv',
-                          'tiktok_comments.csv',
-                          0)
+pyk.save_tiktok_multi(tiktok_videos,
+                      False,
+                      'tiktok_data.csv',
+                      'tiktok_comments.csv',
+                      0)
                          
-	#download an individual video's JSON object
+#download an individual video's JSON object
 	
-	tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
+tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```
 Obviously it'd be great if Pyktok could pull more than 30 user videos and 20 comments, but that would likely involve browser emulation, which is not a can of worms I intend to open anytime soon.
 

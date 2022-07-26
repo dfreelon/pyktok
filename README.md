@@ -9,7 +9,7 @@ I developed Pyktok ("pick-tock") because none of the existing TikTok data collec
  - Download up to 30 most recent user video URLs
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
  
-This program may stop working suddenly if TikTok changes how it stores its data ([see Freelon, (2018)](https://osf.io/preprints/socarxiv/56f4q/)).
+This program may stop working suddenly if TikTok changes how it stores its data ([see Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)).
  
 **Requirements**
 

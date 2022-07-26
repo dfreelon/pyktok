@@ -1,0 +1,103 @@
+Metadata-Version: 2.1
+Name: pyktok
+Version: 0.0.2
+Summary: A package for collecting TikTok videos and metadata.
+Author-email: Deen Freelon <dfreelon@gmail.com>
+License: BSD 3-Clause License
+        
+        Copyright (c) 2022, Deen Freelon
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+        
+        1. Redistributions of source code must retain the above copyright notice, this
+           list of conditions and the following disclaimer.
+        
+        2. Redistributions in binary form must reproduce the above copyright notice,
+           this list of conditions and the following disclaimer in the documentation
+           and/or other materials provided with the distribution.
+        
+        3. Neither the name of the copyright holder nor the names of its
+           contributors may be used to endorse or promote products derived from
+           this software without specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+        AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+        IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+        SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+        OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+        
+Project-URL: Homepage, https://pypi.org/project/pyktok/
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+## Pyktok
+**A simple module to collect video, text, and metadata from Tiktok.**
+
+I developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities I could find worked for me. Because TikTok's official API does not permit data extraction, Pyktok pulls its data directly from the JSON object embedded in every Tiktok video and user page. Here are its major features, most of which require the URL(s) of the content you wish to collect:
+
+ - Download TikTok videos
+ - Download video metadata
+ - Download up to 20 most recent video comments
+ - Download up to 30 most recent user video URLs
+ - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
+ 
+This program may stop working suddenly if TikTok changes how it stores its data [see Freelon, (2018)](https://osf.io/preprints/socarxiv/56f4q/).
+ 
+**Requirements**
+
+Pyktok relies on the following packages:
+
+ - [browser_cookie3](https://pypi.org/project/browser-cookie3/0.6.0/)
+ - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+ - [Numpy](https://numpy.org/)
+ - [Pandas](https://pandas.pydata.org/)
+ - [Requests](https://pypi.org/project/requests/)
+
+**Usage**
+
+
+    import pyktok as pyk
+    
+    # download a single TikTok video and one line of metadata to the file "test_data.csv"
+    
+    pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
+                    True,
+                    'video_data.csv')
+    
+    # download another TikTok video, add its metadata to the same file as above, and create a new file containing comment data
+    
+    pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
+                    True,
+                    'video_data.csv',
+                    'comment_data.csv')
+    
+    # get a list of URLs of up to 30 of a user's most recent videos
+    
+    tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok')
+    
+    #download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 0 to a higher number to increase the number of seconds between executions.
+    
+    pyk.save_tiktok_multi(tiktok_videos,
+                          False,
+                          'tiktok_data.csv',
+                          'tiktok_comments.csv',
+                          0)
+                         
+	#download an individual video's JSON object
+	
+	tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
+
+Obviously it'd be great if Pyktok could pull more than 30 user videos and 20 comments, but that would likely involve browser emulation, which is not a can of worms I intend to open anytime soon.
+
+TikTok's servers may not love it if you run `save_tiktok_multi` at full speed, so I recommend increasing the `sleep` parameter (the 0 in the example above) if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

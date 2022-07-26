@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0",
+            "browser-cookie3",
+            "beautifulsoup4",
+            "numpy",
+            "pandas",
+            "requests"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyktok"
+version = "0.0.2"
+authors = [
+  { name="Deen Freelon", email="dfreelon@gmail.com"},
+]
+description = "A package for collecting TikTok videos and metadata."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://pypi.org/project/pyktok/"

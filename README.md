@@ -23,7 +23,7 @@ Pyktok relies on the following packages:
 
 **Usage**
 
-
+```python
     import pyktok as pyk
     
     # download a single TikTok video and one line of metadata to the file "test_data.csv"
@@ -54,7 +54,7 @@ Pyktok relies on the following packages:
 	#download an individual video's JSON object
 	
 	tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
-
+```
 Obviously it'd be great if Pyktok could pull more than 30 user videos and 20 comments, but that would likely involve browser emulation, which is not a can of worms I intend to open anytime soon.
 
 TikTok's servers may not love it if you run `save_tiktok_multi` at full speed, so I recommend increasing the `sleep` parameter (the 0 in the example above) if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

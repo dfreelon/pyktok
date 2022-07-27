@@ -1,7 +1,7 @@
 ## Pyktok
 **A simple module to collect video, text, and metadata from Tiktok.**
 
-I developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities I could find worked for me. Because TikTok's official API does not permit data extraction, Pyktok pulls its data directly from the JSON object embedded in every Tiktok video and user page. Here are its major features, most of which require the URL(s) of the content you wish to collect:
+I developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities I could find worked for me. Pyktok pulls its data directly from the JSON object embedded in every Tiktok video and user page (except for `save_video_comments`, which uses the TikTok API). Here are its major features, most of which require the URL(s) of the content you wish to collect:
 
  - Download TikTok videos
  - Download video metadata
@@ -58,7 +58,11 @@ pyk.save_tiktok_multi(tiktok_videos,
 #download an individual video's JSON object
 	
 tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
-```
-Obviously it'd be great if Pyktok could pull more than 30 user videos and 20 comments, but that would likely involve browser emulation, which is not a can of worms I intend to open anytime soon.
 
-TikTok's servers may not love it if you run `save_tiktok_multi` at full speed, so I recommend increasing the `sleep` parameter (the 0 in the example above) if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.
+#download all available video comments (this is the default behavior, but you can change the max_comments parameter if desired)
+
+tt_comments pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
+				    'chair_comments.csv')
+```
+
+TikTok's servers may not love it if you run `save_tiktok_multi` or `save_video_comments` at full speed, so I recommend increasing the `sleep` parameter (the 0 in the example above) if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

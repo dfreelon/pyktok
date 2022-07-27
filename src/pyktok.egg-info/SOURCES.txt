@@ -1,9 +1,0 @@
-LICENSE
-README.md
-pyproject.toml
-src/pyktok/__init__.py
-src/pyktok/pyktok.py
-src/pyktok.egg-info/PKG-INFO
-src/pyktok.egg-info/SOURCES.txt
-src/pyktok.egg-info/dependency_links.txt
-src/pyktok.egg-info/top_level.txt

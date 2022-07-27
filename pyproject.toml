@@ -1,15 +1,15 @@
 [build-system]
-requires = ["setuptools>=61.0",
+requires = ["hatchling",
             "browser-cookie3",
             "beautifulsoup4",
             "numpy",
             "pandas",
             "requests"]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
 
 [project]
 name = "pyktok"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
   { name="Deen Freelon", email="dfreelon@gmail.com"},
 ]

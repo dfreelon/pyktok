@@ -69,7 +69,8 @@ def save_tiktok(video_url,
                        'video_sharecount',
                        'video_commentcount',
                        'video_playcount',
-                       'video_description',
+                       'video_description',                       
+                       'video_is_ad',
                        'video_fn',
                        'author_username',
                        'author_name',
@@ -116,6 +117,10 @@ def save_tiktok(video_url,
         except Exception:
             video_description = ''
         try:
+            video_is_ad = tt_json['ItemModule'][video_id]['isAd']
+        except Exception:
+            video_is_ad = ''
+        try:
             author_username = tt_json['ItemModule'][video_id]['author']
         except Exception:
             author_username = ''
@@ -157,6 +162,7 @@ def save_tiktok(video_url,
                      video_commentcount,
                      video_playcount,
                      video_description,
+                     video_is_ad,
                      video_fn,
                      author_username,
                      author_name,

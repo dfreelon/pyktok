@@ -12,6 +12,7 @@ import json
 import numpy as np
 import os
 import pandas as pd
+import random
 import re
 import requests
 import time
@@ -56,7 +57,7 @@ def save_tiktok(video_url,
 
     tt_json = get_tiktok_json(video_url)
     regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
-    base_fn = regex_url.replace('/','_')
+    video_fn = regex_url.replace('/','_') + '.mp4'
     video_id = list(tt_json['ItemModule'].keys())[0]
     
     if metadata_fn != '':
@@ -151,7 +152,6 @@ def save_tiktok(video_url,
             author_diggcount = tt_json['ItemModule'][video_id]['authorStats']['diggCount']
         except Exception:
             author_diggcount = np.nan
-        video_fn = base_fn + '.mp4'
         data_list = [video_id,
                      video_timestamp,
                      video_length,
@@ -298,5 +298,39 @@ def save_tiktok_multi(video_urls,
         tt_urls = video_urls
     for u in tt_urls:
         save_tiktok(u,save_video,metadata_fn,comments_fn)
-        time.sleep(sleep)
-        
+        time.sleep(random.randint(0, sleep))
+
+def save_video_comments(video_url,
+                        comments_file,
+                        max_comments=np.inf,
+                        sleep=4):
+    cursor = 0
+    headers["referer"] = video_url
+    video_id = re.findall('(?<=/video/)(.+?)(?=\?|$)',video_url)[0]
+    while cursor < max_comments:
+        params = {'aweme_id': video_id,
+                  'count': '20',
+                  'cursor': str(cursor)
+                 }
+        cookies = browser_cookie3.chrome(domain_name='.tiktok.com')
+        try:
+            response = requests.get('https://www.tiktok.com/api/comment/list/',
+                                    headers=headers,
+                                    params=params,
+                                    cookies=cookies
+                                    )
+            data = response.json()
+            cursor = cursor + len(data['comments'])
+            print(cursor,"comments downloaded (max "+ str(max_comments) +")")
+            if os.path.exists(comments_file):
+                pd.DataFrame(data['comments']).to_csv(comments_file,
+                                                      mode='a',
+                                                      header=False,
+                                                      index=False)
+            else:
+                pd.DataFrame(data['comments']).to_csv(comments_file,index=False)
+            if data["has_more"] != 1:
+                break
+            time.sleep(random.randint(1, sleep))
+        except Exception as e:
+            print(e)

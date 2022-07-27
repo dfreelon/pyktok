@@ -36,7 +36,7 @@ pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_cop
 	        True,
                 video_data.csv')
     
-# download another TikTok video, add its metadata to the same file as above, and create a new file containing comment data
+# download another TikTok video, add its metadata to the same file as above, and create a new file containing the most recent 20 comments (note: if you want to download all comments, please use `save_video_comments` below
     
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 	        True,

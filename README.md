@@ -36,12 +36,11 @@ pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_cop
 	        True,
                 video_data.csv')
     
-# download another TikTok video, add its metadata to the same file as above, and create a new file containing the most recent 20 comments (note: if you want to download all comments, please use `save_video_comments` below
+# download another TikTok video and add its metadata to the same file as above
     
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 	        True,
-                'video_data.csv',
-                'comment_data.csv')
+                'video_data.csv')
     
 # get a list of URLs of up to 30 of a user's most recent videos
     
@@ -52,7 +51,6 @@ tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok')
 pyk.save_tiktok_multi(tiktok_videos,
                       False,
                       'tiktok_data.csv',
-                      'tiktok_comments.csv',
                       0)
                          
 #download an individual video's JSON object
@@ -61,8 +59,8 @@ tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/701153677208
 
 #download all available video comments (this is the default behavior, but you can change the max_comments parameter if desired)
 
-tt_comments pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
-				    'chair_comments.csv')
+pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
+			'chair_comments.csv')
 ```
 
 TikTok's servers may not love it if you run `save_tiktok_multi` or `save_video_comments` at full speed, so I recommend increasing the `sleep` parameter (the 0 in the example above) if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

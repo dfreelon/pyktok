@@ -49,9 +49,8 @@ def get_tiktok_json(video_url):
 
 def save_tiktok(video_url,
                 save_video=True,
-                metadata_fn='', 
-                comments_fn=''):
-    if save_video == False and metadata_fn == '' and comments_fn == '':
+                metadata_fn=''):
+    if save_video == False and metadata_fn == '':
         print('Since save_video, metadata_fn, and comments_fn are all False or blank, the program did nothing.')
         return
 
@@ -179,105 +178,6 @@ def save_tiktok(video_url,
             new_data = data_line
         new_data.to_csv(metadata_fn,index=False)
         print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
-    
-    if comments_fn != '':
-        comments_dict = {'cid':[],
-                         'video_id':[],
-                         'text':[],
-                         'timestamp':[],
-                         'digg_count':[],
-                         'status':[],
-                         'reply_id':[],
-                         'user_digged':[],
-                         'text_extra':[],
-                         'reply_comment_total':[],
-                         'reply_to_reply_id':[],
-                         'is_author_digged':[],
-                         'stick_position':[],
-                         'user_buried':[],
-                         'label_list':[],
-                         'author_pin':[],
-                         'no_show':[],
-                         'comment_lang':[],
-                         'user':[]}
-        comments_chunk = pd.DataFrame()
-        for i in tt_json['CommentItem'].keys():
-            comments_dict['cid'].append(tt_json['CommentItem'][i]['cid'])
-            comments_dict['video_id'].append(tt_json['CommentItem'][i]['aweme_id'])
-            comments_dict['text'].append(tt_json['CommentItem'][i]['text'])
-            time = tt_json['CommentItem'][i]['create_time']
-            try:
-                comments_dict['timestamp'].append(datetime.fromtimestamp(int(time)).isoformat())
-            except Exception:
-                comments_dict['timestamp'].append('')
-            try:
-                comments_dict['digg_count'].append(tt_json['CommentItem'][i]['digg_count'])
-            except Exception:
-                comments_dict['digg_count'].append(np.nan)
-            try:
-                comments_dict['status'].append(tt_json['CommentItem'][i]['status'])
-            except Exception:
-                comments_dict['status'].append('')
-            try:
-                comments_dict['reply_id'].append(tt_json['CommentItem'][i]['reply_id'])
-            except Exception:
-                comments_dict['reply_id'].append('')
-            try:
-                comments_dict['user_digged'].append(tt_json['CommentItem'][i]['user_digged'])
-            except Exception:
-                comments_dict['user_digged'].append('')
-            try:
-                comments_dict['text_extra'].append(tt_json['CommentItem'][i]['text_extra'])
-            except Exception:
-                comments_dict['text_extra'].append('')
-            try:
-                comments_dict['reply_comment_total'].append(tt_json['CommentItem'][i]['reply_comment_total'])
-            except Exception:
-                comments_dict['reply_comment_total'].append(np.nan)
-            try:
-                comments_dict['reply_to_reply_id'].append(tt_json['CommentItem'][i]['reply_to_reply_id'])
-            except Exception:
-                comments_dict['reply_to_reply_id'].append('')
-            try:
-                comments_dict['is_author_digged'].append(tt_json['CommentItem'][i]['is_author_digged'])
-            except Exception:
-                comments_dict['is_author_digged'].append('')
-            try:
-                comments_dict['stick_position'].append(tt_json['CommentItem'][i]['stick_position'])
-            except Exception:
-                comments_dict['stick_position'].append('')
-            try:
-                comments_dict['user_buried'].append(tt_json['CommentItem'][i]['user_buried'])
-            except Exception:
-                comments_dict['user_buried'].append('')
-            try:
-                comments_dict['label_list'].append(tt_json['CommentItem'][i]['label_list'])
-            except Exception:
-                comments_dict['label_list'].append('')
-            try:
-                comments_dict['author_pin'].append(tt_json['CommentItem'][i]['author_pin'])
-            except Exception:
-                comments_dict['author_pin'].append('')
-            try:
-                comments_dict['no_show'].append(tt_json['CommentItem'][i]['no_show'])
-            except Exception:
-                comments_dict['no_show'].append('')
-            try:
-                comments_dict['comment_lang'].append(tt_json['CommentItem'][i]['comment_language'])
-            except Exception:
-                comments_dict['comment_lang'].append('')
-            try:
-                comments_dict['user'].append(tt_json['CommentItem'][i]['user'])
-            except Exception:
-                comments_dict['user'].append('')
-            comments_chunk = pd.DataFrame(comments_dict)
-        if os.path.exists(comments_fn):
-            comments = pd.read_csv(comments_fn,keep_default_na=False)
-            new_comments = pd.concat([comments,comments_chunk])
-        else:
-            new_comments = comments_chunk
-        new_comments.to_csv(comments_fn,index=False)
-        print("Saved comments for video\n",video_url,"\nto\n",os.getcwd())
         
     if save_video == True:
         tt_video_url = tt_json['ItemList']['video']['preloadList'][0]['url']
@@ -290,15 +190,14 @@ def save_tiktok(video_url,
 def save_tiktok_multi(video_urls,
                       save_video=True,
                       metadata_fn='',
-                      comments_fn='',
                       sleep=0):
     if type(video_urls) is str:
         tt_urls = open(video_urls).read().splitlines()
     else:
         tt_urls = video_urls
     for u in tt_urls:
-        save_tiktok(u,save_video,metadata_fn,comments_fn)
-        time.sleep(random.randint(0, sleep))
+        save_tiktok(u,save_video,metadata_fn)
+        time.sleep(random.randint(1, sleep))
 
 def save_video_comments(video_url,
                         comments_file,

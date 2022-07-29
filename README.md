@@ -69,4 +69,4 @@ pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/701153677208992486
 			cursor_resume=3865)
 ```
 
-TikTok's servers may not love it if you run `save_tiktok_multi` or `save_video_comments` at full speed, so I recommend increasing the `sleep` parameter (the 0 in the example above) if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.
+TikTok's servers may not love it if you run `save_tiktok_multi` or `save_video_comments` at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

@@ -51,7 +51,7 @@ def save_tiktok(video_url,
                 save_video=True,
                 metadata_fn=''):
     if save_video == False and metadata_fn == '':
-        print('Since save_video, metadata_fn, and comments_fn are all False or blank, the program did nothing.')
+        print('Since save_video and metadata_fn are both False/blank, the program did nothing.')
         return
 
     tt_json = get_tiktok_json(video_url)

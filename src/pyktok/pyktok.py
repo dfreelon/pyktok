@@ -201,9 +201,10 @@ def save_tiktok_multi(video_urls,
 
 def save_video_comments(video_url,
                         comments_file,
+                        cursor_resume=0,
                         max_comments=np.inf,
                         sleep=4):
-    cursor = 0
+    cursor = cursor_resume
     headers["referer"] = video_url
     video_id = re.findall('(?<=/video/)(.+?)(?=\?|$)',video_url)[0]
     while cursor < max_comments:
@@ -219,8 +220,9 @@ def save_video_comments(video_url,
                                     cookies=cookies
                                     )
             data = response.json()
+            old_cursor = cursor
             cursor = cursor + len(data['comments'])
-            print(cursor,"comments downloaded (max "+ str(max_comments) +")")
+            print("Comments",old_cursor,"through",cursor,"downloaded (max "+ str(max_comments) +")")
             if os.path.exists(comments_file):
                 pd.DataFrame(data['comments']).to_csv(comments_file,
                                                       mode='a',

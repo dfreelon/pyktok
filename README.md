@@ -19,8 +19,8 @@ This program may stop working suddenly if TikTok changes how it stores its data 
 
 Pyktok relies on the following packages:
 
- - [browser_cookie3](https://pypi.org/project/browser-cookie3/)
  - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+ - [browser_cookie3](https://pypi.org/project/browser-cookie3/)
  - [Numpy](https://numpy.org/)
  - [Pandas](https://pandas.pydata.org/)
  - [Requests](https://pypi.org/project/requests/)

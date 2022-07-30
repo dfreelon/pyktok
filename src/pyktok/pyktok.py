@@ -190,7 +190,7 @@ def save_tiktok(video_url,
 def save_tiktok_multi(video_urls,
                       save_video=True,
                       metadata_fn='',
-                      sleep=0):
+                      sleep=4):
     if type(video_urls) is str:
         tt_urls = open(video_urls).read().splitlines()
     else:
@@ -207,12 +207,12 @@ def save_video_comments(video_url,
     cursor = cursor_resume
     headers["referer"] = video_url
     video_id = re.findall('(?<=/video/)(.+?)(?=\?|$)',video_url)[0]
+    cookies = browser_cookie3.chrome(domain_name='.tiktok.com')
     while cursor < max_comments:
         params = {'aweme_id': video_id,
                   'count': '20',
                   'cursor': str(cursor)
                  }
-        cookies = browser_cookie3.chrome(domain_name='.tiktok.com')
         try:
             response = requests.get('https://www.tiktok.com/api/comment/list/',
                                     headers=headers,

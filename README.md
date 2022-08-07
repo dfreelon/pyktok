@@ -46,12 +46,12 @@ pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_cop
     
 tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok')
     
-#download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 0 to a higher number to increase the number of seconds between executions.
+#download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
     
 pyk.save_tiktok_multi(tiktok_videos,
                       False,
                       'tiktok_data.csv',
-                      0)
+                      1)
                          
 #download an individual video's JSON object
 	

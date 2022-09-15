@@ -252,7 +252,7 @@ def save_hashtag_video_urls(hashtag,
         params = {'challengeID': tag_id,
                   'count': '20',
                   'cursor': str(cursor),
-                  'aid': '1988' #find a way not to hard code this?
+                  'aid': '1988'
                  }
         try:
             response = requests.get('https://www.tiktok.com/api/challenge/item_list/',

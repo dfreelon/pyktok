@@ -7,7 +7,7 @@ We developed Pyktok ("pick-tock") because none of the existing TikTok data colle
 
  - Download TikTok videos
  - Download video metadata
- - Download all available video comments (special thanks to [@pkreissel](https://github.com/pkreissel) for drafting the code for this!!!)
+ - Download all available video comments (thanks [@pkreissel](https://github.com/pkreissel))
  - Download up to 30 most recent user video URLs
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
  - Download TikTok video URLs from hashtag pages (thanks [@p-bach](https://github.com/p-bach))

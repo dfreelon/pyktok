@@ -1,5 +1,5 @@
 ## Pyktok
-**A simple module to collect video, text, and metadata from Tiktok, with no authentication required.**
+**A simple module to collect video, text, and metadata from Tiktok with no authentication required.**
 
 By @dfreelon, [@pkreissel](https://github.com/pkreissel), and [@p-bach](https://github.com/p-bach)
 

@@ -51,7 +51,7 @@ To get a list of URLs of up to 30 of a user's most recent videos:
 ```python    
 tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok')
 ```    
-To download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
+To download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change ```False``` to ```True```). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
 ```python    
 pyk.save_tiktok_multi(tiktok_videos,
                       False,

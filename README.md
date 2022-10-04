@@ -64,13 +64,11 @@ tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/701153677208
 ```
 To download all available video comments (this is the default behavior, but you can change the max_comments parameter if desired)
 ```python
-pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
-			'chair_comments.csv')
+pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```			
 To download video comments starting with comment #3865 (if your previous download session was interrupted; you can get the comment number from the console output):
 ```python
 pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
-			'chair_comments.csv',
 			cursor_resume=3865)
 ```
 To download video URLs for the hashtag "#funny" (practically speaking, you may not get every available URL). Also, this function tends to pull many duplicate URLs, so we highly recommend deduplication prior to any further analysis.

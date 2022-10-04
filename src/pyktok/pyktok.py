@@ -235,3 +235,62 @@ def save_video_comments(video_url,
             time.sleep(random.randint(1, sleep))
         except Exception as e:
             print(e)
+
+def save_hashtag_video_urls(hashtag,
+                        urls_file,
+                        cursor_resume=0,
+                        max_videos=np.inf,
+                        sleep=4):
+    cursor = cursor_resume
+    tagurl = "https://www.tiktok.com/tag/" + hashtag
+    tagjson = get_tiktok_json(tagurl)
+    al_ios = tagjson['SharingMeta']['value']['al:ios:url']
+    tag_id = re.findall('(?<=/detail/)(.+?)(?=\?|$)',al_ios)[0]
+    headers["referer"] = tagurl
+    cookies = browser_cookie3.chrome(domain_name='.tiktok.com')
+    while cursor < max_videos:
+        params = {'challengeID': tag_id,
+                  'count': '20',
+                  'cursor': str(cursor),
+                  'aid': '1988'
+                 }
+        try:
+            response = requests.get('https://www.tiktok.com/api/challenge/item_list/',
+                                    headers=headers,
+                                    params=params,
+                                    cookies=cookies
+                                    )
+            data = response.json()
+            urllist = []
+            for video in data['itemList']:
+                urllist.append('https://tiktok.com/@' + video['author']['uniqueId'] + '/video/' + video['id'])
+            if os.path.exists(urls_file):
+                pd.DataFrame(urllist).to_csv(urls_file,
+                                                      mode='a',
+                                                      header=False,
+                                                      index=False)
+            else:
+               pd.DataFrame(urllist).to_csv(urls_file,index=False)
+            old_cursor = cursor
+            cursor = cursor + len(data['itemList'])
+            print("Video urls", old_cursor, "through", cursor, "downloaded (max " + str(max_videos) + ")")
+            if data["hasMore"] != 1:
+                break
+            time.sleep(random.randint(1, sleep))
+        except Exception as e:
+            print(e)
+    finalurls = pd.read_csv(urls_file)
+    old_count = len(finalurls.index)
+    finalurls.drop_duplicates(subset=None, inplace=True)
+    count = len(finalurls.index)
+    finalurls.to_csv(urls_file, index=False)
+    print("Dropped", str(old_count - count), "duplicate urls. Total number of urls in file:", count)
+
+def get_sticker_text(video_url):
+    tt_json = get_tiktok_json(video_url)
+    video_id = re.findall('(?<=/video/)(.+?)(?=\?|$)', video_url)[0]
+    sticker_texts = []
+    for sticker in tt_json['ItemModule'][video_id]['stickersOnItem']:
+        for text in sticker['stickerText']:
+            sticker_texts.append(text)
+    return sticker_texts

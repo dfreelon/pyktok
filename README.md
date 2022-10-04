@@ -58,7 +58,7 @@ pyk.save_tiktok_multi(tiktok_videos,
                       'tiktok_data.csv',
                       1)
 ```                         
-To download an individual video's JSON object:
+To get an individual video's JSON object:
 ```python	
 tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```

@@ -1,13 +1,16 @@
 ## Pyktok
 **A simple module to collect video, text, and metadata from Tiktok, with no authentication required.**
 
+By @dfreelon, [@pkreissel](https://github.com/pkreissel), and [@p-bach](https://github.com/p-bach)
+
 I developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities I could find worked for me. Pyktok pulls its data directly from the JSON object embedded in every Tiktok video and user page (except for `save_video_comments`, which uses the TikTok API). Here are its major features, most of which require the URL(s) of the content you wish to collect:
 
  - Download TikTok videos
  - Download video metadata
- - Download ~~up to 20 most recent~~ **all available video comments** (special thanks to **[@pkreissel](https://github.com/pkreissel)** for drafting the code for this!!!)
+ - Download all available video comments (special thanks to **[@pkreissel](https://github.com/pkreissel)** for drafting the code for this!!!)
  - Download up to 30 most recent user video URLs
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
+ - Download TikTok video URLs from hashtag pages (thanks [@p-bach](https://github.com/p-bach))
  
 This program may stop working suddenly if TikTok changes how it stores its data ([see Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)).
 

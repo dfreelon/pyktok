@@ -34,47 +34,47 @@ Pyktok relies on the following packages:
 
 ```python
 import pyktok as pyk
-    
-# download a single TikTok video and one line of metadata to the file "test_data.csv"
-    
+```    
+To download a single TikTok video and one line of metadata to the file "test_data.csv":
+```python    
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
 	        True,
                 video_data.csv')
-    
-# download another TikTok video and add its metadata to the same file as above
-    
+```    
+To download another TikTok video and add its metadata to the same file as above:
+```python   
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 	        True,
                 'video_data.csv')
-    
-# get a list of URLs of up to 30 of a user's most recent videos
-    
+```   
+To get a list of URLs of up to 30 of a user's most recent videos:
+```python    
 tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok')
-    
-#download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
-    
+```    
+To download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change False to True). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
+```python    
 pyk.save_tiktok_multi(tiktok_videos,
                       False,
                       'tiktok_data.csv',
                       1)
-                         
-#download an individual video's JSON object
-	
+```                         
+To download an individual video's JSON object:
+```python	
 tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
-
-#download all available video comments (this is the default behavior, but you can change the max_comments parameter if desired)
-
+```
+To download all available video comments (this is the default behavior, but you can change the max_comments parameter if desired)
+```python
 pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 			'chair_comments.csv')
-			
-#download video comments starting with comment #3865 (if your previous download session was interrupted; you can get the comment number from the console output)
-
+```			
+To download video comments starting with comment #3865 (if your previous download session was interrupted; you can get the comment number from the console output):
+```python
 pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 			'chair_comments.csv',
 			cursor_resume=3865)
-
-#download video URLs for the hashtag "#funny" (practically speaking, you may not get every available URL) also, this function tends to pull many duplicate URLs, so we highly recommend deduplication prior to any further analysis
-
+```
+To download video URLs for the hashtag "#funny" (practically speaking, you may not get every available URL). Also, this function tends to pull many duplicate URLs, so we highly recommend deduplication prior to any further analysis.
+```python
 pyk.save_hashtag_video_urls('funny')
 ```
 

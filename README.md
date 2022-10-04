@@ -67,11 +67,15 @@ tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/701153677208
 pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 			'chair_comments.csv')
 			
-#download all available video comments starting with comment #3865 (if your previous download session was interrupted; you can get the comment number from the console output)
+#download video comments starting with comment #3865 (if your previous download session was interrupted; you can get the comment number from the console output)
 
 pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 			'chair_comments.csv',
 			cursor_resume=3865)
+
+#download video URLs for the hashtag "#funny" (practically speaking, you may not get every available URL)
+
+pyk.save_hashtag_video_urls('funny')
 ```
 
-TikTok's servers may not love it if you run `save_tiktok_multi` or `save_video_comments` at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.
+TikTok's servers may not love it if you run `save_tiktok_multi`, `save_video_comments`, or `save_hashtag_video_urls` at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

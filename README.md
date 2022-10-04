@@ -73,7 +73,7 @@ pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/701153677208992486
 			'chair_comments.csv',
 			cursor_resume=3865)
 
-#download video URLs for the hashtag "#funny" (practically speaking, you may not get every available URL)
+#download video URLs for the hashtag "#funny" (practically speaking, you may not get every available URL) also, this function tends to pull many duplicate URLs, so we highly recommend deduplication prior to any further analysis
 
 pyk.save_hashtag_video_urls('funny')
 ```

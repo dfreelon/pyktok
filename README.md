@@ -66,7 +66,7 @@ To download all available video comments (this is the default behavior, but you 
 ```python
 pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```			
-To download video comments starting with comment #3865 (if your previous download session was interrupted; you can get the comment number from the console output):
+To download video comments starting with comment #3865 (if your previous download session was interrupted; you can get the last comment number from the console output):
 ```python
 pyk.save_video_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 			cursor_resume=3865)

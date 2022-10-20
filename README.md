@@ -35,11 +35,11 @@ Pyktok relies on the following packages:
 ```python
 import pyktok as pyk
 ```    
-To download a single TikTok video and one line of metadata to the file "test_data.csv":
+To download a single TikTok video and one line of metadata to the file "video_data.csv":
 ```python    
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
 	        True,
-                video_data.csv')
+                'video_data.csv')
 ```    
 To download another TikTok video and add its metadata to the same file as above:
 ```python   

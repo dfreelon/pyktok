@@ -215,7 +215,7 @@ def save_video_comments(video_url,
                         comments_file=None,
                         cursor_resume=0,
                         max_comments=np.inf,
-                        sleep=4):
+                        sleep=0):
     cursor = cursor_resume
     headers["referer"] = video_url
     video_id = re.findall('(?<=/video/)(.+?)(?=\?|$)',video_url)[0]
@@ -224,7 +224,7 @@ def save_video_comments(video_url,
     cookies = browser_cookie3.load()
     while cursor < max_comments:
         params = {'aweme_id': video_id,
-                  'count': '20',
+                  'count': '50',
                   'cursor': str(cursor)}
         try:
             response = requests.get('https://www.tiktok.com/api/comment/list/',

@@ -17,6 +17,18 @@ import re
 import requests
 import time
 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.service import Service as ChromeiumService #sic
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.utils import ChromeType
+from webdriver_manager.firefox import GeckoDriverManager
+
 headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept-Language': 'en-US,en;q=0.8',
            'Upgrade-Insecure-Requests': '1',
@@ -24,9 +36,10 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
+cookies = browser_cookie3.load()
 
-def get_account_video_urls(user_url):
-    tt_json = get_tiktok_json(user_url)
+def get_account_video_urls(user_url,browser_name=None):
+    tt_json = get_tiktok_json(user_url,browser_name)
     video_ids = tt_json['ItemList']['user-post']['list']
     tt_account = tt_json['UserPage']['uniqueId']
     url_seg_1 = 'https://www.tiktok.com/@'
@@ -34,8 +47,10 @@ def get_account_video_urls(user_url):
     video_urls = [url_seg_1 + tt_account + url_seg_2 + u for u in video_ids]
     return video_urls
 
-def get_tiktok_json(video_url):
-    cookies = browser_cookie3.load()
+def get_tiktok_json(video_url,browser_name=None):
+    global cookies
+    if browser_name is not None:
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='tiktok.com')
     tt = requests.get(video_url,
                       headers=headers,
                       cookies=cookies,
@@ -49,251 +64,259 @@ def get_tiktok_json(video_url):
         return
     return tt_json
 
+def generate_data_row(video_obj):
+    data_header = ['video_id',
+                   'video_timestamp',
+                   'video_duration',
+                   'video_locationcreated',
+                   'video_diggcount',
+                   'video_sharecount',
+                   'video_commentcount',
+                   'video_playcount',
+                   'video_description',
+                   'video_is_ad',
+                   'video_stickers',
+                   'author_username',
+                   'author_name',
+                   'author_followercount',
+                   'author_followingcount',
+                   'author_heartcount',
+                   'author_videocount',
+                   'author_diggcount',
+                   'author_verified']
+    data_list = []
+    data_list.append(video_obj['id'])
+    try:
+        ctime = video_obj['createTime']
+        data_list.append(datetime.fromtimestamp(int(ctime)).isoformat())
+    except Exception:
+        data_list.append('')
+    try:
+        data_list.append(video_obj['video']['duration'])
+    except Exception:
+        data_list.append(np.nan)
+    try:
+        data_list.append(video_obj['locationCreated'])
+    except Exception:
+        data_list.append('')
+    try:
+        data_list.append(video_obj['stats']['diggCount'])
+    except Exception:
+        data_list.append(np.nan)
+    try:
+        data_list.append(video_obj['stats']['shareCount'])
+    except Exception:
+        data_list.append(np.nan)
+    try:
+        data_list.append(video_obj['stats']['commentCount'])
+    except Exception:
+        data_list.append(np.nan)
+    try:
+        data_list.append(video_obj['stats']['playCount'])
+    except Exception:
+        data_list.append(np.nan)
+    try:
+        data_list.append(video_obj['desc'])
+    except Exception:
+        data_list.append('')
+    try:
+        data_list.append(video_obj['isAd'])
+    except Exception:
+        data_list.append(False)
+    try:
+        video_stickers = []
+        for sticker in video_obj['stickersOnItem']:
+            for text in sticker['stickerText']:
+                video_stickers.append(text)
+        data_list.append(';'.join(video_stickers))
+    except Exception:
+        data_list.append('')
+    try:
+        data_list.append(video_obj['author']['uniqueId'])
+    except Exception:
+        try:
+            data_list.append(video_obj['author'])
+        except Exception:
+            data_list.append('')
+    try:
+        data_list.append(video_obj['author']['nickname'])
+    except Exception:
+        try:
+            data_list.append(video_obj['nickname'])
+        except Exception:
+            data_list.append('')
+    try:
+        data_list.append(video_obj['authorStats']['followerCount'])
+    except Exception:
+        data_list.append(np.nan)
+    try:
+        data_list.append(video_obj['authorStats']['followingCount'])
+    except Exception:
+        data_list.append(np.nan)   
+    try:
+        data_list.append(video_obj['authorStats']['heartCount'])
+    except Exception:
+        data_list.append(np.nan)   
+    try:
+        data_list.append(video_obj['authorStats']['videoCount'])
+    except Exception:
+        data_list.append(np.nan)    
+    try:
+        data_list.append(video_obj['authorStats']['diggCount'])
+    except Exception:
+        data_list.append(np.nan)
+    try:
+        data_list.append(video_obj['author']['verified'])
+    except Exception:
+        data_list.append(False)
+    data_row = pd.DataFrame(dict(zip(data_header,data_list)),index=[0])
+    return data_row
+
 def save_tiktok(video_url,
                 save_video=True,
-                metadata_fn=''):
+                metadata_fn='',
+                browser_name=None):
     if save_video == False and metadata_fn == '':
         print('Since save_video and metadata_fn are both False/blank, the program did nothing.')
         return
 
-    tt_json = get_tiktok_json(video_url)
-    regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
-    video_fn = regex_url.replace('/','_') + '.mp4'
-    video_id = list(tt_json['ItemModule'].keys())[0]
-    
+    tt_json = get_tiktok_json(video_url,browser_name)
+
     if save_video == True:
         tt_video_url = tt_json['ItemList']['video']['preloadList'][0]['url']
-        tt_video = requests.get(tt_video_url,allow_redirects=True)
-    
+        regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
+        video_fn = regex_url.replace('/','_') + '.mp4'
         with open(video_fn, 'wb') as fn:
-            fn.write(tt_video.content)
-        print("Saved video\n",video_url,"\nto\n",os.getcwd())
+            fn.write(tt_video_url.content)
+        print("Saved video\n",tt_video_url,"\nto\n",os.getcwd())
     
     if metadata_fn != '':
-        data_header = ['video_id',
-                       'video_timestamp',
-                       'video_length',
-                       'video_title',
-                       'video_locationcreated',
-                       'video_diggcount',
-                       'video_sharecount',
-                       'video_commentcount',
-                       'video_playcount',
-                       'video_description',                       
-                       'video_is_ad',
-                       'video_stickers',
-                       'video_fn',
-                       'author_username',
-                       'author_name',
-                       'author_followercount',
-                       'author_followingcount',
-                       'author_heartcount',
-                       'author_videocount',
-                       'author_diggcount']
-        time = tt_json['ItemModule'][video_id]['createTime']
+        data_slot = tt_json['ItemModule'][list(tt_json['ItemModule'].keys())[0]]
+        data_row = generate_data_row(data_slot)
         try:
-            video_timestamp = datetime.fromtimestamp(int(time)).isoformat()
+            data_row.loc[0,"author_verified"] = tt_json['UserModule']['users'][list(tt_json['UserModule']['users'].keys())[0]]['verified']
         except Exception:
-            video_timestamp = ''
-        try:
-            video_length = tt_json['ItemModule'][video_id]['video']['duration']
-        except Exception:
-            video_length = np.nan
-        try:
-            video_title = tt_json['ItemModule'][video_id]['desc']
-        except Exception:
-            video_title = ''
-        try:
-            video_locationcreated = tt_json['ItemModule'][video_id]['locationCreated']
-        except Exception:
-            video_locationcreated = ''
-        try:
-            video_diggcount = tt_json['ItemModule'][video_id]['stats']['diggCount']
-        except Exception:
-            video_diggcount = np.nan
-        try:
-            video_sharecount = tt_json['ItemModule'][video_id]['stats']['shareCount']
-        except Exception:
-            video_sharecount = np.nan
-        try:
-            video_commentcount = tt_json['ItemModule'][video_id]['stats']['commentCount']
-        except Exception:
-            video_commentcount = np.nan
-        try:
-            video_playcount = tt_json['ItemModule'][video_id]['stats']['playCount']
-        except Exception:
-            video_playcount = np.nan
-        try:
-            video_description = tt_json['ItemModule'][video_id]['desc']
-        except Exception:
-            video_description = ''
-        try:
-            video_is_ad = tt_json['ItemModule'][video_id]['isAd']
-        except Exception:
-            video_is_ad = ''
-        try:
-            video_stickers = []
-            for sticker in tt_json['ItemModule'][video_id]['stickersOnItem']:
-                for text in sticker['stickerText']:
-                    video_stickers.append(text)
-            video_stickers = ';'.join(video_stickers)
-        except Exception:
-            video_stickers = ''
-        try:
-            author_username = tt_json['ItemModule'][video_id]['author']
-        except Exception:
-            author_username = ''
-        try:
-            author_name = tt_json['ItemModule'][video_id]['authorName']
-        except Exception:
-            try:
-                author_name = tt_json['ItemModule'][video_id]['nickname']
-            except Exception:
-                author_name = ''
-        try:
-            author_followercount = tt_json['ItemModule'][video_id]['authorStats']['followerCount']
-        except Exception:
-            author_followercount = np.nan
-        try:
-            author_followingcount = tt_json['ItemModule'][video_id]['authorStats']['followingCount']
-        except Exception:
-            author_followingcount = np.nan   
-        try:
-            author_heartcount = tt_json['ItemModule'][video_id]['authorStats']['heartCount']
-        except Exception:
-            author_heartcount = np.nan    
-        try:
-            author_videocount = tt_json['ItemModule'][video_id]['authorStats']['videoCount']
-        except Exception:
-            author_videocount = np.nan    
-        try:
-            author_diggcount = tt_json['ItemModule'][video_id]['authorStats']['diggCount']
-        except Exception:
-            author_diggcount = np.nan
-        data_list = [video_id,
-                     video_timestamp,
-                     video_length,
-                     video_title,
-                     video_locationcreated,
-                     video_diggcount,
-                     video_sharecount,
-                     video_commentcount,
-                     video_playcount,
-                     video_description,
-                     video_is_ad,
-                     video_stickers,
-                     video_fn,
-                     author_username,
-                     author_name,
-                     author_followercount,
-                     author_followingcount,
-                     author_heartcount,
-                     author_videocount,
-                     author_diggcount]
-        data_line = pd.DataFrame(dict(zip(data_header,data_list)),index=[0])
+            pass
         if os.path.exists(metadata_fn):
             metadata = pd.read_csv(metadata_fn,keep_default_na=False)
-            new_data = pd.concat([metadata,data_line])
+            combined_data = pd.concat([metadata,data_row])
         else:
-            new_data = data_line
-        new_data.to_csv(metadata_fn,index=False)
+            combined_data = data_row
+        combined_data.to_csv(metadata_fn,index=False)
         print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
 
 def save_tiktok_multi(video_urls,
                       save_video=True,
                       metadata_fn='',
-                      sleep=4):
+                      sleep=4,
+                      browser_name=None):
     if type(video_urls) is str:
         tt_urls = open(video_urls).read().splitlines()
     else:
         tt_urls = video_urls
     for u in tt_urls:
-        save_tiktok(u,save_video,metadata_fn)
+        save_tiktok(u,save_video,metadata_fn,browser_name)
         time.sleep(random.randint(1, sleep))
+    print('Saved',len(tt_urls),'video files and/or lines of metadata')
 
-def save_video_comments(video_url,
-                        comments_file=None,
-                        cursor_resume=0,
-                        max_comments=np.inf,
-                        sleep=4):
-    cursor = cursor_resume
-    headers["referer"] = video_url
-    video_id = re.findall('(?<=/video/)(.+?)(?=\?|$)',video_url)[0]
-    if comments_file == None:
-        comments_file = video_id + 'tiktok_comments.csv'
-    cookies = browser_cookie3.load()
-    while cursor < max_comments:
-        params = {'aweme_id': video_id,
-                  'count': '20',
-                  'cursor': str(cursor)}
+def save_tiktok_by_keyword(keyword,
+                           save_videos=False,
+                           save_metadata=True,
+                           max_urls=np.inf,
+                           cursor=0,
+                           sleep=4,
+                           browser_name=None):
+    global cookies
+    if browser_name is not None:
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='tiktok.com')
+    metadata_fn = keyword + '_tiktok_metadata.csv' #only used if save_metadata == True
+    while cursor < max_urls:
+        params = {'device_id':'1234567890123456789',
+                  'keyword':keyword,
+                  'offset':cursor,
+                  'count':'20'} #doesn't change anything--why?
         try:
-            response = requests.get('https://www.tiktok.com/api/comment/list/',
-                                    headers=headers,
+            response = requests.get('https://www.tiktok.com/api/search/item/full/',
                                     params=params,
                                     cookies=cookies)
             data = response.json()
-            old_cursor = cursor
-            cursor = cursor + len(data['comments'])
-            print("Comments",old_cursor,"through",cursor,"downloaded (max " + str(max_comments) + ")")
-            if os.path.exists(comments_file):
-                pd.DataFrame(data['comments']).to_csv(comments_file,
-                                                      mode='a',
-                                                      header=False,
-                                                      index=False)
-            else:
-                pd.DataFrame(data['comments']).to_csv(comments_file,index=False,header=['comment'])
+            videos = data['item_list']
+            video_df = pd.DataFrame()
+            
+            for v in videos:
+                if save_videos == True:
+                    video_url = 'https://tiktok.com/@' + v['author']['uniqueId'] + '/video/' + v['id']
+                    save_tiktok(video_url,True,browser_name=browser_name)
+                if save_metadata == True:
+                    data_row = generate_data_row(v)
+                    video_df = pd.concat([video_df,data_row])
+            if save_metadata == True:
+                if os.path.exists(metadata_fn):
+                    metadata = pd.read_csv(metadata_fn,keep_default_na=False)
+                    combined_data = pd.concat([metadata,video_df])
+                    combined_data['video_id'] = combined_data.video_id.astype(str)
+                else:
+                    combined_data = video_df
+                combined_data.drop_duplicates('video_id').to_csv(metadata_fn,index=False)
+            cursor = cursor + len(videos)
+            print('Saved',cursor,'total videos and/or metadata rows.')
             if data["has_more"] != 1:
                 break
-            time.sleep(random.randint(1, sleep))
+            time.sleep(random.randint(1,sleep))   
         except Exception as e:
-            print(e)
-
-def save_hashtag_video_urls(hashtag,
-                            urls_file=None,
-                            cursor_resume=0,
-                            max_videos=np.inf,
-                            sleep=4):
-    if urls_file == None:
-        urls_file = '#' + hashtag + '_tiktok.csv'
-    cursor = cursor_resume
-    tagurl = "https://www.tiktok.com/tag/" + hashtag
-    tagjson = get_tiktok_json(tagurl)
-    al_ios = tagjson['SharingMeta']['value']['al:ios:url']
-    tag_id = re.findall('(?<=/detail/)(.+?)(?=\?|$)',al_ios)[0]
-    headers["referer"] = tagurl
-    cookies = browser_cookie3.load()
-    while cursor < max_videos:
-        params = {'challengeID': tag_id,
-                  'count': '20',
-                  'cursor': str(cursor),
-                  'aid': '1988'}
-        try:
-            response = requests.get('https://www.tiktok.com/api/challenge/item_list/',
-                                    headers=headers,
-                                    params=params,
-                                    cookies=cookies)
-            data = response.json()
-            urllist = []
-            for video in data['itemList']:
-                urllist.append('https://tiktok.com/@' + video['author']['uniqueId'] + '/video/' + video['id'])
-            if os.path.exists(urls_file):
-                pd.DataFrame(urllist).to_csv(urls_file,
-                                             mode='a',
-                                             header=False,
-                                             index=False)
-            else:
-               pd.DataFrame(urllist).to_csv(urls_file,index=False,header=['url'])
-            old_cursor = cursor
-            cursor = cursor + len(data['itemList'])
-            print("Video urls", old_cursor, "through", cursor, "downloaded (max " + str(max_videos) + ")")
-            if data["hasMore"] != 1:
-                break
-            time.sleep(random.randint(1, sleep))
-        except Exception as e:
-            print(e)
-    finalurls = pd.read_csv(urls_file)
-    old_count = len(finalurls.index)
-    finalurls.drop_duplicates(subset=None, inplace=True)
-    count = len(finalurls.index)
-    finalurls.to_csv(urls_file, index=False)
-    print("Dropped", str(old_count - count), "duplicate urls. Total number of urls in file:", count)
+            print(type(e).__name__ +': '+str(e),'\nStopped at cursor=',cursor)
+            return
+    print('Done.')
+    
+def save_visible_comments(video_url,
+                          comment_fn=None,
+                          browser='chromium'):
+    start_time = time.time()
+    c_options = ChromeOptions()
+    c_options.add_argument("--headless")
+    f_options = FirefoxOptions()
+    f_options.add_argument("--headless")
+    if browser == 'chromium':
+        driver = webdriver.Chrome(service=ChromeiumService(
+                                      ChromeDriverManager(
+                                          chrome_type=ChromeType.CHROMIUM).install()),
+                                  options=c_options)
+    elif browser == 'chrome':
+        driver = webdriver.Chrome(service=ChromeiumService(ChromeDriverManager().install()),options=c_options)
+    elif browser == 'firefox':
+        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=f_options)
+    driver.get(video_url)
+    wait = WebDriverWait(driver,10)
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 
+                                               'span.tiktok-ku14zo-SpanUserNameText.e1g2efjf3')))
+    
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    ids_tags = soup.find_all('div',{'class':re.compile('DivCommentContentContainer')})
+    comment_ids = [i.get('id') for i in ids_tags]
+    names_tags = soup.find_all('a',attrs={'class':re.compile("StyledUserLinkName")})
+    styled_names = [i.text.strip() for i in names_tags]
+    screen_names = [i.get('href').replace('/','') for i in names_tags]
+    comments_tags = soup.find_all('p',attrs={'class':re.compile("PCommentText")})
+    comments = [i.text.strip() for i in comments_tags]
+    likes_tags = soup.find_all('span',attrs={'class':re.compile('SpanCount')})
+    likes = [int(i.text.strip()) 
+             if i.text.strip().isnumeric() 
+             else i.text.strip() 
+             for i 
+             in likes_tags]
+    timestamp = datetime.now().isoformat()
+    data_header = ['comment_id','styled_name','screen_name','comment','like_count','time_collected']
+    data_list = [comment_ids,styled_names,screen_names,comments,likes,[timestamp] * len(likes)]
+    data_frame = pd.DataFrame(data_list,index=data_header).T
+    
+    if comment_fn is None:
+        regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
+        comment_fn = regex_url.replace('/','_') + '_tiktok_comments.csv'
+    if os.path.exists(comment_fn):
+        existing_data = pd.read_csv(comment_fn,keep_default_na=False)
+        combined_data = pd.concat([existing_data,data_frame])
+        combined_data['comment_id'] = combined_data.comment_id.astype(str)
+        combined_data.drop_duplicates('comment_id').to_csv(comment_fn,index=False)
+    else:
+        data_frame.to_csv(comment_fn,index=False)
+    print('Comments saved to file',comment_fn,'in',round(time.time() - start_time,2),'secs.')

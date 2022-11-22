@@ -3,7 +3,7 @@
 
 By @dfreelon with contributions from [@pkreissel](https://github.com/pkreissel), [@p-bach](https://github.com/p-bach), and [@TimoBaeuerle](https://github.com/TimoBaeuerle) 
 
-We developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities we could find suited our needs. Pyktok pulls its data directly from the JSON object embedded in every Tiktok video and user page (except for `save_video_comments` and `save_hashtag_video_urls`, which use a hidden TikTok API which is not publicly documented). Here are its major features, most of which require the URL(s) of the content you wish to collect:
+We developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities we could find suited our needs. Pyktok pulls its data directly from the JSON objects embedded in Tiktok pages as well as from hidden APIs with no public documentation. Here are its major features, most of which require the URL(s) of the content you wish to collect:
 
  - Download TikTok videos
  - Download video metadata

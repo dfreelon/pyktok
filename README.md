@@ -49,7 +49,7 @@ pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_cop
 	        True,
                 'video_data.csv')
 ```   
-To get a list of URLs of up to 30 of a user's most recent videos (note, for this to work you must set the `browser` parameter to a browser on your system that you have used to access TikTok *and* that is supported by browser_cookie3. I think the only valid values are `'chrome'` and `'firefox'`): 
+To get a list of URLs of up to 30 of a user's most recent videos (note, for this to work you must set the `browser` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`): 
 
 ```python    
 tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok',browser='chrome')

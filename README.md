@@ -18,7 +18,7 @@ R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of 
 
 **Installation**
 
-```pip install pyktok```
+```pip install pyktok``` (still a version behind but will fix soon)
 
 **Requirements**
 

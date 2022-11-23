@@ -4,12 +4,14 @@ requires = ["hatchling",
             "beautifulsoup4",
             "numpy",
             "pandas",
-            "requests"]
+            "requests",
+            "selenium",
+            "webdriver-manager"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pyktok"
-version = "0.0.9"
+version = "0.0.10"
 authors = [
   { name="Deen Freelon", email="dfreelon@gmail.com"},
 ]

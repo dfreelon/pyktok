@@ -1,5 +1,5 @@
 ## Pyktok
-**A simple module to collect video, text, and metadata from TikTok with no authentication required.**
+**A simple module to collect video, text, and metadata from TikTok.**
 
 By @dfreelon with contributions from [@pkreissel](https://github.com/pkreissel), [@p-bach](https://github.com/p-bach), and [@TimoBaeuerle](https://github.com/TimoBaeuerle) 
 
@@ -12,7 +12,7 @@ We developed Pyktok ("pick-tock") because none of the existing TikTok data colle
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
  - Download TikTok metadata and video from search pages (thanks [@p-bach](https://github.com/p-bach) and [@TimoBaeuerle](https://github.com/TimoBaeuerle))
  
-This program may stop working suddenly if TikTok changes how it stores its data (see [Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)).
+This program may stop working suddenly if TikTok changes how it stores its data (see [Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)). Some functions may require you to be logged in to TikTok.
 
 R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of Pyktok.
 

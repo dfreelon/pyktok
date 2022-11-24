@@ -58,19 +58,19 @@ pyk.save_tiktok_multi_urls(tiktok_videos,
                      	  'tiktok_data.csv',
                      	   1)
 ```  
-To download up to 30 videos and/or metadata lines from a *user* page (note, for this to work you must set the `browser_name` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`. Also you can get the videos too by setting `save_video` to `True`): 
+To download up to 30 metadata lines from a *user* page (note, for this to work you must set the `browser_name` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`. Also you can get the videos too by setting `save_video` to `True`): 
 
 ```python    
 pyk.save_tiktok_multi_page('https://www.tiktok.com/@tiktok',save_video=False,save_metadata=True,browser_name='chrome')
 ```
 
-To download up to 15 videos and/or metadata lines from a *hashtag* page: 
+To download up to 15 metadata lines from a *hashtag* page: 
 
 ```python    
 pyk.save_tiktok_multi_page('https://www.tiktok.com/tag/datascience?lang=en',save_video=False,save_metadata=True)
 ```
 
-To download up to 15 videos and/or metadata lines from a *music* page: 
+To download up to 15 metadata lines from a *music* page: 
 
 ```python    
 pyk.save_tiktok_multi_page('https://www.tiktok.com/music/Anti-Hero-7156822419213125634?lang=en',save_video=False,save_metadata=True)

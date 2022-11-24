@@ -38,31 +38,14 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Connection': 'keep-alive'}
 cookies = browser_cookie3.load()
 
-def get_account_video_urls(user_url,browser_name=None):
-    tt_json = get_tiktok_json(user_url,browser_name)
-    video_ids = tt_json['ItemList']['user-post']['list']
-    tt_account = tt_json['UserPage']['uniqueId']
-    url_seg_1 = 'https://www.tiktok.com/@'
-    url_seg_2 = '/video/'
-    video_urls = [url_seg_1 + tt_account + url_seg_2 + u for u in video_ids]
-    return video_urls
-
-def get_tiktok_json(video_url,browser_name=None):
-    global cookies
-    if browser_name is not None:
-        cookies = getattr(browser_cookie3,browser_name)(domain_name='tiktok.com')
-    tt = requests.get(video_url,
-                      headers=headers,
-                      cookies=cookies,
-                      timeout=20)
-    soup = BeautifulSoup(tt.text, "html.parser")
-    tt_script = soup.find('script', attrs={'id':"SIGI_STATE"})
-    try:
-        tt_json = json.loads(tt_script.string)
-    except AttributeError:
-        print("The function encountered a downstream error and did not deliver any data, which happens periodically (not sure why). Please try again later.")
-        return
-    return tt_json
+def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):
+    if os.path.exists(metadata_fn):
+        metadata = pd.read_csv(metadata_fn,keep_default_na=False)
+        combined_data = pd.concat([metadata,video_df])
+        combined_data[dedup_field] = combined_data[dedup_field].astype(str)
+    else:
+        combined_data = video_df
+    return combined_data.drop_duplicates(dedup_field)
 
 def generate_data_row(video_obj):
     data_header = ['video_id',
@@ -172,6 +155,23 @@ def generate_data_row(video_obj):
     data_row = pd.DataFrame(dict(zip(data_header,data_list)),index=[0])
     return data_row
 
+def get_tiktok_json(video_url,browser_name=None):
+    global cookies
+    if browser_name is not None:
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='tiktok.com')
+    tt = requests.get(video_url,
+                      headers=headers,
+                      cookies=cookies,
+                      timeout=20)
+    soup = BeautifulSoup(tt.text, "html.parser")
+    tt_script = soup.find('script', attrs={'id':"SIGI_STATE"})
+    try:
+        tt_json = json.loads(tt_script.string)
+    except AttributeError:
+        print("The function encountered a downstream error and did not deliver any data, which happens periodically (not sure why). Please try again later.")
+        return
+    return tt_json
+
 def save_tiktok(video_url,
                 save_video=True,
                 metadata_fn='',
@@ -183,11 +183,12 @@ def save_tiktok(video_url,
     tt_json = get_tiktok_json(video_url,browser_name)
 
     if save_video == True:
-        tt_video_url = tt_json['ItemList']['video']['preloadList'][0]['url']
         regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
         video_fn = regex_url.replace('/','_') + '.mp4'
+        tt_video_url = tt_json['ItemList']['video']['preloadList'][0]['url']
+        tt_video = requests.get(tt_video_url,allow_redirects=True)
         with open(video_fn, 'wb') as fn:
-            fn.write(tt_video_url.content)
+            fn.write(tt_video.content)
         print("Saved video\n",tt_video_url,"\nto\n",os.getcwd())
     
     if metadata_fn != '':
@@ -204,12 +205,34 @@ def save_tiktok(video_url,
             combined_data = data_row
         combined_data.to_csv(metadata_fn,index=False)
         print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
+        
+def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
+                           save_video=False,
+                           save_metadata=True,
+                           metadata_fn='',
+                           browser_name=None):
+    tt_json = get_tiktok_json(tiktok_url,browser_name)
+    data_loc = tt_json['ItemModule']
+    regex_url = re.findall('(?<=www\.)(.+?)(?=\?|$)',tiktok_url)[0]
+    video_fn = regex_url.replace('/','_') + '.mp4'
+    if save_metadata == True and metadata_fn == '':
+        metadata_fn = regex_url.replace('/','_') + '.csv'
+    data = pd.DataFrame()
+    
+    for v in data_loc:
+        data = pd.concat([data,generate_data_row(data_loc[v])])
+        if save_video == True:
+            video_url = 'https://www.tiktok.com/@' + data_loc[v]['author'] + '/video/' + data_loc[v]['id']
+            save_tiktok(video_url,True)
+    if save_metadata == True:
+        data = deduplicate_metadata(metadata_fn,data)
+        data.to_csv(metadata_fn,index=False)
 
-def save_tiktok_multi(video_urls,
-                      save_video=True,
-                      metadata_fn='',
-                      sleep=4,
-                      browser_name=None):
+def save_tiktok_multi_urls(video_urls,
+                           save_video=True,
+                           metadata_fn='',
+                           sleep=4,
+                           browser_name=None):
     if type(video_urls) is str:
         tt_urls = open(video_urls).read().splitlines()
     else:
@@ -251,13 +274,8 @@ def save_tiktok_by_keyword(keyword,
                     data_row = generate_data_row(v)
                     video_df = pd.concat([video_df,data_row])
             if save_metadata == True:
-                if os.path.exists(metadata_fn):
-                    metadata = pd.read_csv(metadata_fn,keep_default_na=False)
-                    combined_data = pd.concat([metadata,video_df])
-                    combined_data['video_id'] = combined_data.video_id.astype(str)
-                else:
-                    combined_data = video_df
-                combined_data.drop_duplicates('video_id').to_csv(metadata_fn,index=False)
+                combined_data = deduplicate_metadata(metadata_fn,video_df)
+                combined_data.to_csv(metadata_fn,index=False)
             cursor = cursor + len(videos)
             print('Saved',cursor,'total videos and/or metadata rows.')
             if data["has_more"] != 1:
@@ -278,13 +296,17 @@ def save_visible_comments(video_url,
     f_options.add_argument("--headless")
     if browser == 'chromium':
         driver = webdriver.Chrome(service=ChromeiumService(
-                                      ChromeDriverManager(
+                                          ChromeDriverManager(
                                           chrome_type=ChromeType.CHROMIUM).install()),
                                   options=c_options)
     elif browser == 'chrome':
-        driver = webdriver.Chrome(service=ChromeiumService(ChromeDriverManager().install()),options=c_options)
+        driver = webdriver.Chrome(service=ChromeiumService(
+                                          ChromeDriverManager().install()),
+                                  options=c_options)
     elif browser == 'firefox':
-        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()),options=f_options)
+        driver = webdriver.Firefox(service=FirefoxService(
+                                           GeckoDriverManager().install()),
+                                   options=f_options)
     driver.get(video_url)
     wait = WebDriverWait(driver,10)
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 
@@ -312,11 +334,6 @@ def save_visible_comments(video_url,
     if comment_fn is None:
         regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
         comment_fn = regex_url.replace('/','_') + '_tiktok_comments.csv'
-    if os.path.exists(comment_fn):
-        existing_data = pd.read_csv(comment_fn,keep_default_na=False)
-        combined_data = pd.concat([existing_data,data_frame])
-        combined_data['comment_id'] = combined_data.comment_id.astype(str)
-        combined_data.drop_duplicates('comment_id').to_csv(comment_fn,index=False)
-    else:
-        data_frame.to_csv(comment_fn,index=False)
+    combined_data = deduplicate_metadata(comment_fn,data_frame,'comment_id')
+    combined_data.to_csv(comment_fn,index=False)
     print('Comments saved to file',comment_fn,'in',round(time.time() - start_time,2),'secs.')

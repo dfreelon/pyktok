@@ -8,7 +8,7 @@ We developed Pyktok ("pick-tock") because none of the existing TikTok data colle
  - Download TikTok videos
  - Download video metadata
  - Download up to 20 video comments
- - Download up to 30 most recent user video URLs
+ - Download 15-20 videos and/or metadata lines from hashtag, user, and music pages displaying multiple videos
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
  - Download TikTok metadata and video from search pages (thanks [@p-bach](https://github.com/p-bach) and [@TimoBaeuerle](https://github.com/TimoBaeuerle))
  
@@ -49,19 +49,33 @@ pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_cop
 	        True,
                 'video_data.csv')
 ```   
-To get a list of URLs of up to 30 of a user's most recent videos (note, for this to work you must set the `browser_name` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`): 
+To download metadata ONLY from the video URLs used in the preceding two lines of code (to also download the videos, change ```False``` to ```True```). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
+```python
+tiktok_videos = ['https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
+                 'https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1']
+pyk.save_tiktok_multi_urls(tiktok_videos,
+                           False,
+                     	  'tiktok_data.csv',
+                     	   1)
+```  
+To download up to 30 metadata lines from a *user* page (note, for this to work you must set the `browser_name` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`. Also you can get the videos too by setting `save_video` to `True`): 
 
 ```python    
-tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok',browser_name='chrome')
+pyk.save_tiktok_multi_page('https://www.tiktok.com/@tiktok',save_video=False,save_metadata=True,browser_name='chrome')
 ```
 
-To download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change ```False``` to ```True```). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
+To download up to 15 metadata lines from a *hashtag* page: 
+
 ```python    
-pyk.save_tiktok_multi(tiktok_videos,
-                      False,
-                      'tiktok_data.csv',
-                      1)
-```                         
+pyk.save_tiktok_multi_page('https://www.tiktok.com/tag/datascience?lang=en',save_video=False,save_metadata=True)
+```
+
+To download up to 15 metadata lines from a *music* page: 
+
+```python    
+pyk.save_tiktok_multi_page('https://www.tiktok.com/music/Anti-Hero-7156822419213125634?lang=en',save_video=False,save_metadata=True)
+```
+                       
 To get an individual video's JSON object:
 ```python	
 tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
@@ -76,4 +90,4 @@ To download metadata for the keyword "funny" (practically speaking, you may not 
 pyk.save_tiktok_by_keyword('funny')
 ```
 
-TikTok's servers may not love it if you run `save_tiktok_multi`, `save_video_comments`, or `save_hashtag_video_urls` at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.
+TikTok's servers may not love it if you run some of the above functions at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

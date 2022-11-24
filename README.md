@@ -85,7 +85,7 @@ To download all video comments initially visible on the page (previous versions 
 pyk.save_visible_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```			
 
-To download metadata for the keyword "funny" (practically speaking, you may not get all available data). This function has been rewritten since TT's data structure change, but should work. You can also download videos at the same time by setting `save_videos` to `True`.
+To download metadata for the keyword "funny" (practically speaking, you may not get all available data). This function has been rewritten since TT's data structure change, but should work. You can also download videos at the same time by setting `save_videos` to `True`. Also note that this endpoint sometimes delivers results based on keywords spelled similarly but unrelated to what you used--my only advice is to filter your data after the fact.
 ```python
 pyk.save_tiktok_by_keyword('funny')
 ```

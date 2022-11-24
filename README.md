@@ -25,7 +25,7 @@ R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of 
 Pyktok relies on the following packages:
 
  - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
- - [browser_cookie3](https://pypi.org/project/browser-cookie3/)
+ - [browser-cookie3](https://pypi.org/project/browser-cookie3/)
  - [Numpy](https://numpy.org/)
  - [Pandas](https://pandas.pydata.org/)
  - [Requests](https://pypi.org/project/requests/)

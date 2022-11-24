@@ -1,5 +1,5 @@
 ## Pyktok
-**A simple module to collect video, text, and metadata from TikTok with no authentication required.**
+**A simple module to collect video, text, and metadata from TikTok.**
 
 By @dfreelon with contributions from [@pkreissel](https://github.com/pkreissel), [@p-bach](https://github.com/p-bach), and [@TimoBaeuerle](https://github.com/TimoBaeuerle) 
 
@@ -12,7 +12,7 @@ We developed Pyktok ("pick-tock") because none of the existing TikTok data colle
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
  - Download TikTok metadata and video from search pages (thanks [@p-bach](https://github.com/p-bach) and [@TimoBaeuerle](https://github.com/TimoBaeuerle))
  
-This program may stop working suddenly if TikTok changes how it stores its data (see [Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)).
+This program may stop working suddenly if TikTok changes how it stores its data (see [Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)). Some functions may require you to be logged in to TikTok.
 
 R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of Pyktok.
 
@@ -49,10 +49,10 @@ pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_cop
 	        True,
                 'video_data.csv')
 ```   
-To get a list of URLs of up to 30 of a user's most recent videos (note, for this to work you must set the `browser` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`): 
+To get a list of URLs of up to 30 of a user's most recent videos (note, for this to work you must set the `browser_name` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`): 
 
 ```python    
-tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok',browser='chrome')
+tiktok_videos = pyk.get_account_video_urls('https://www.tiktok.com/@tiktok',browser_name='chrome')
 ```
 
 To download metadata and comment data ONLY from video URLs collected via the preceding line of code (to also download the videos, change ```False``` to ```True```). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.

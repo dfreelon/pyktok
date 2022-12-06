@@ -87,9 +87,9 @@ To download all video comments initially visible on the page (previous versions 
 pyk.save_visible_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```			
 
-**[THIS FUNCTION NO LONGER WORKS DUE TO CHANGES IN TT'S DATA STRUCTURE, BUT THAT WAS A PRETTY SWEET WEEK OF FUNCTIONALITY LOL]** To download metadata for the keyword "funny" (practically speaking, you may not get all available data). This function replaces an earlier one that delivered results from TT's hashtag pages, which are now covered by `save_tiktok_multi_page`. You can also download videos at the same time by setting `save_videos` to `True`. Also note that this endpoint sometimes delivers results based on keywords spelled similarly but unrelated to what you used (for example, the term "computational" also return matches for "computer" and "computing"). My only advice is to filter your data after the fact.
+**[THIS FUNCTION NO LONGER WORKS DUE TO CHANGES IN TT'S DATA STRUCTURE, BUT THAT WAS A PRETTY SWEET WEEK OF FUNCTIONALITY LOL]** ~~To download metadata for the keyword "funny" (practically speaking, you may not get all available data). This function replaces an earlier one that delivered results from TT's hashtag pages, which are now covered by `save_tiktok_multi_page`. You can also download videos at the same time by setting `save_videos` to `True`. Also note that this endpoint sometimes delivers results based on keywords spelled similarly but unrelated to what you used (for example, the term "computational" also return matches for "computer" and "computing"). My only advice is to filter your data after the fact.~~
 ```python
-pyk.save_tiktok_by_keyword('funny')
+# pyk.save_tiktok_by_keyword('funny') no longer works, unfortuately...
 ```
 
 TikTok's servers may not love it if you run some of the above functions at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

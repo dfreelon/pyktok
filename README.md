@@ -88,7 +88,7 @@ To download all video comments initially visible on the page (previous versions 
 pyk.save_visible_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```			
 
-To download visible comments from multiple videos at the same time, saving to the same file (to save each video's comments to its own file, leave the second parameter blank):
+To download visible comments from multiple videos at the same time, saving to the same file (to save each video's comments to its own file, leave the second parameter of `save_visible_comments` blank):
 ```python
 #using the same tiktok_videos list created above
 for v in tiktok_videos:

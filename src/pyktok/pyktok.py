@@ -18,6 +18,7 @@ import requests
 import time
 
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.chrome.service import Service as ChromeiumService #sic
 from selenium.webdriver.common.by import By
@@ -183,10 +184,11 @@ def save_tiktok(video_url,
     tt_json = get_tiktok_json(video_url,browser_name)
 
     if save_video == True:
-        regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
+        regex_url = re.findall('(?<=\.com/)(.+?)(?=\?|$)',video_url)[0]
         video_fn = regex_url.replace('/','_') + '.mp4'
         tt_video_url = tt_json['ItemList']['video']['preloadList'][0]['url']
-        tt_video = requests.get(tt_video_url,allow_redirects=True)
+        headers['referer'] = 'https://www.tiktok.com/'
+        tt_video = requests.get(tt_video_url,allow_redirects=True,headers=headers)
         with open(video_fn, 'wb') as fn:
             fn.write(tt_video.content)
         print("Saved video\n",tt_video_url,"\nto\n",os.getcwd())
@@ -195,7 +197,8 @@ def save_tiktok(video_url,
         data_slot = tt_json['ItemModule'][list(tt_json['ItemModule'].keys())[0]]
         data_row = generate_data_row(data_slot)
         try:
-            data_row.loc[0,"author_verified"] = tt_json['UserModule']['users'][list(tt_json['UserModule']['users'].keys())[0]]['verified']
+            user_id = list(tt_json['UserModule']['users'].keys())[0]
+            data_row.loc[0,"author_verified"] = tt_json['UserModule']['users'][user_id]['verified']
         except Exception:
             pass
         if os.path.exists(metadata_fn):
@@ -227,6 +230,7 @@ def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
     if save_metadata == True:
         data = deduplicate_metadata(metadata_fn,data)
         data.to_csv(metadata_fn,index=False)
+    print('Saved',len(data_loc),'videos and/or lines of metadata')
 
 def save_tiktok_multi_urls(video_urls,
                            save_video=True,
@@ -240,7 +244,7 @@ def save_tiktok_multi_urls(video_urls,
     for u in tt_urls:
         save_tiktok(u,save_video,metadata_fn,browser_name)
         time.sleep(random.randint(1, sleep))
-    print('Saved',len(tt_urls),'video files and/or lines of metadata')
+    print('Saved',len(tt_urls),'videos and/or lines of metadata')
 
 def save_tiktok_by_keyword(keyword,
                            save_videos=False,
@@ -308,9 +312,12 @@ def save_visible_comments(video_url,
                                            GeckoDriverManager().install()),
                                    options=f_options)
     driver.get(video_url)
-    wait = WebDriverWait(driver,10)
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 
-                                               'span.tiktok-ku14zo-SpanUserNameText.e1g2efjf3')))
+    try:
+        wait = WebDriverWait(driver,10)
+        wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@class,'SpanUserNameText')]")))
+    except TimeoutException:
+        print(video_url,"has no comments")
+        return
     
     soup = BeautifulSoup(driver.page_source, "html.parser")
     ids_tags = soup.find_all('div',{'class':re.compile('DivCommentContentContainer')})
@@ -327,8 +334,8 @@ def save_visible_comments(video_url,
              for i 
              in likes_tags]
     timestamp = datetime.now().isoformat()
-    data_header = ['comment_id','styled_name','screen_name','comment','like_count','time_collected']
-    data_list = [comment_ids,styled_names,screen_names,comments,likes,[timestamp] * len(likes)]
+    data_header = ['comment_id','styled_name','screen_name','comment','like_count','video_url','time_collected']
+    data_list = [comment_ids,styled_names,screen_names,comments,likes,[video_url]*len(likes),[timestamp]*len(likes)]
     data_frame = pd.DataFrame(data_list,index=data_header).T
     
     if comment_fn is None:
@@ -337,3 +344,4 @@ def save_visible_comments(video_url,
     combined_data = deduplicate_metadata(comment_fn,data_frame,'comment_id')
     combined_data.to_csv(comment_fn,index=False)
     print('Comments saved to file',comment_fn,'in',round(time.time() - start_time,2),'secs.')
+    

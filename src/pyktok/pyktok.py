@@ -38,6 +38,7 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
 cookies = browser_cookie3.load()
+url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
 
 def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):
     if os.path.exists(metadata_fn):
@@ -155,11 +156,20 @@ def generate_data_row(video_obj):
         data_list.append(False)
     data_row = pd.DataFrame(dict(zip(data_header,data_list)),index=[0])
     return data_row
-
+#currently unused, but leaving it in case it's needed later
+'''
+def fix_tt_url(tt_url):
+    if 'www.' not in tt_url.lower():
+        url_parts = tt_url.split('://')
+        fixed_url = url_parts[0] + '://www.' + url_parts[1]
+        return fixed_url
+    else:
+        return tt_url
+'''
 def get_tiktok_json(video_url,browser_name=None):
     global cookies
     if browser_name is not None:
-        cookies = getattr(browser_cookie3,browser_name)(domain_name='tiktok.com')
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='www.tiktok.com')
     tt = requests.get(video_url,
                       headers=headers,
                       cookies=cookies,
@@ -169,7 +179,7 @@ def get_tiktok_json(video_url,browser_name=None):
     try:
         tt_json = json.loads(tt_script.string)
     except AttributeError:
-        print("The function encountered a downstream error and did not deliver any data, which happens periodically (not sure why). Please try again later.")
+        print("The function encountered a downstream error and did not deliver any data, which happens periodically for various reasons. Please try again later.")
         return
     return tt_json
 
@@ -184,7 +194,7 @@ def save_tiktok(video_url,
     tt_json = get_tiktok_json(video_url,browser_name)
 
     if save_video == True:
-        regex_url = re.findall('(?<=\.com/)(.+?)(?=\?|$)',video_url)[0]
+        regex_url = re.findall(url_regex,video_url)[0]
         video_fn = regex_url.replace('/','_') + '.mp4'
         tt_video_url = tt_json['ItemList']['video']['preloadList'][0]['url']
         headers['referer'] = 'https://www.tiktok.com/'
@@ -216,8 +226,8 @@ def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            browser_name=None):
     tt_json = get_tiktok_json(tiktok_url,browser_name)
     data_loc = tt_json['ItemModule']
-    regex_url = re.findall('(?<=www\.)(.+?)(?=\?|$)',tiktok_url)[0]
-    video_fn = regex_url.replace('/','_') + '.mp4'
+    regex_url = re.findall(url_regex,tiktok_url)[0]
+    video_fn = 'tiktok_com_' + regex_url.replace('/','_') + '.mp4'
     if save_metadata == True and metadata_fn == '':
         metadata_fn = regex_url.replace('/','_') + '.csv'
     data = pd.DataFrame()
@@ -245,50 +255,6 @@ def save_tiktok_multi_urls(video_urls,
         save_tiktok(u,save_video,metadata_fn,browser_name)
         time.sleep(random.randint(1, sleep))
     print('Saved',len(tt_urls),'videos and/or lines of metadata')
-
-def save_tiktok_by_keyword(keyword,
-                           save_videos=False,
-                           save_metadata=True,
-                           max_urls=np.inf,
-                           cursor=0,
-                           sleep=4,
-                           browser_name=None):
-    global cookies
-    if browser_name is not None:
-        cookies = getattr(browser_cookie3,browser_name)(domain_name='tiktok.com')
-    metadata_fn = keyword + '_tiktok_metadata.csv' #only used if save_metadata == True
-    while cursor < max_urls:
-        params = {'device_id':'1234567890123456789',
-                  'keyword':keyword,
-                  'offset':cursor,
-                  'count':'20'} #doesn't change anything--why?
-        try:
-            response = requests.get('https://www.tiktok.com/api/search/item/full/',
-                                    params=params,
-                                    cookies=cookies)
-            data = response.json()
-            videos = data['item_list']
-            video_df = pd.DataFrame()
-            
-            for v in videos:
-                if save_videos == True:
-                    video_url = 'https://tiktok.com/@' + v['author']['uniqueId'] + '/video/' + v['id']
-                    save_tiktok(video_url,True,browser_name=browser_name)
-                if save_metadata == True:
-                    data_row = generate_data_row(v)
-                    video_df = pd.concat([video_df,data_row])
-            if save_metadata == True:
-                combined_data = deduplicate_metadata(metadata_fn,video_df)
-                combined_data.to_csv(metadata_fn,index=False)
-            cursor = cursor + len(videos)
-            print('Saved',cursor,'total videos and/or metadata rows.')
-            if data["has_more"] != 1:
-                break
-            time.sleep(random.randint(1,sleep))   
-        except Exception as e:
-            print(type(e).__name__ +': '+str(e),'\nStopped at cursor=',cursor)
-            return
-    print('Done.')
     
 def save_visible_comments(video_url,
                           comment_fn=None,
@@ -339,7 +305,7 @@ def save_visible_comments(video_url,
     data_frame = pd.DataFrame(data_list,index=data_header).T
     
     if comment_fn is None:
-        regex_url = re.findall('(?<=@)(.+?)(?=\?|$)',video_url)[0]
+        regex_url = re.findall(url_regex,video_url)[0]
         comment_fn = regex_url.replace('/','_') + '_tiktok_comments.csv'
     combined_data = deduplicate_metadata(comment_fn,data_frame,'comment_id')
     combined_data.to_csv(comment_fn,index=False)

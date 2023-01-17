@@ -15,7 +15,7 @@ This program may stop working suddenly if TikTok changes how it stores its data 
 
 R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of Pyktok.
 
-Please note that [a number of US states have banned TikTok on state-owned devices](https://www.reuters.com/world/us/wisconsin-governor-signs-order-banning-tiktok-state-devices-2023-01-12/), which includes IT resources provided by state universities. Individuals employed by such institutions are advised to use Pyktok only within applicable laws and regulations.
+Please note that [a number of US states have banned TikTok on state-owned devices](https://www.reuters.com/world/us/wisconsin-governor-signs-order-banning-tiktok-state-devices-2023-01-12/), which include IT resources provided by state universities. Individuals employed by such institutions are advised to use Pyktok only within applicable laws and regulations.
 
 **Installation**
 

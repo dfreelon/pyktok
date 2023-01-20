@@ -10,10 +10,10 @@ We developed Pyktok ("pick-tock") because none of the existing TikTok data colle
  - Download up to 20 video comments
  - Download 15-30 videos and/or metadata lines from hashtag, user, and music pages displaying multiple videos
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
- 
-This program may stop working suddenly if TikTok changes how it stores its data (see [Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)). Some functions may require you to be logged in to TikTok, which means they may not work on cloud servers that don't have Chrome or Firefox installed.
 
 R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of Pyktok.
+
+This program may stop working suddenly if TikTok changes how it stores its data (see [Freelon, 2018](https://osf.io/preprints/socarxiv/56f4q/)). Some functions may require you to be logged in to TikTok, which means they may not work on cloud servers that don't have Chrome or Firefox installed.
 
 Please note that [a number of US states have banned TikTok on state-owned devices](https://www.reuters.com/world/us/wisconsin-governor-signs-order-banning-tiktok-state-devices-2023-01-12/), which include IT resources provided by state universities. Individuals employed by such institutions are advised to use Pyktok only within applicable laws and regulations.
 

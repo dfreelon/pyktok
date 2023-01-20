@@ -192,11 +192,12 @@ def save_tiktok(video_url,
         return
 
     tt_json = get_tiktok_json(video_url,browser_name)
+    video_id = list(tt_json['ItemModule'].keys())[0]
 
     if save_video == True:
         regex_url = re.findall(url_regex,video_url)[0]
         video_fn = regex_url.replace('/','_') + '.mp4'
-        tt_video_url = tt_json['ItemList']['video']['preloadList'][0]['url']
+        tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
         headers['referer'] = 'https://www.tiktok.com/'
         tt_video = requests.get(tt_video_url,allow_redirects=True,headers=headers)
         with open(video_fn, 'wb') as fn:
@@ -204,7 +205,7 @@ def save_tiktok(video_url,
         print("Saved video\n",tt_video_url,"\nto\n",os.getcwd())
     
     if metadata_fn != '':
-        data_slot = tt_json['ItemModule'][list(tt_json['ItemModule'].keys())[0]]
+        data_slot = tt_json['ItemModule'][video_id]
         data_row = generate_data_row(data_slot)
         try:
             user_id = list(tt_json['UserModule']['users'].keys())[0]

@@ -6,12 +6,13 @@ requires = ["hatchling",
             "pandas",
             "requests",
             "selenium",
+            "streamlit",
             "webdriver-manager"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pyktok"
-version = "0.0.14"
+version = "0.0.15"
 authors = [
   { name="Deen Freelon", email="dfreelon@gmail.com"},
 ]

@@ -1,8 +1,6 @@
 ## Pyktok
 **A simple module to collect video, text, and metadata from TikTok.**
 
-By [@dfreelon](https://github.com/dfreelon/) with contributions from [@pkreissel](https://github.com/pkreissel), [@p-bach](https://github.com/p-bach), [@TimoBaeuerle](https://github.com/TimoBaeuerle), and [@christinapwalker](https://github.com/christinapwalker ) 
-
 We developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities we could find suited our needs. Pyktok pulls its data directly from the JSON objects embedded in Tiktok pages and from hidden APIs with no public documentation. Here are its major features:
 
  - Download TikTok videos
@@ -95,6 +93,15 @@ To download visible comments from multiple videos at the same time, saving to th
 #using the same tiktok_videos list created above
 for v in tiktok_videos:
     pyk.save_visible_comments(v,'tiktok_comments.csv')
-```	
+```
 
 TikTok's servers may not love it if you run some of the above functions at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.
+
+Pyktok can also be run from a browser window using `streamlit`. To do so, simply navigate to your `pyktok` directory in a command prompt (it should contain the file `app.py`) and run `streamlit run app.py`. This should pop up a browser window that allows you to control Pyktok using graphical affordances.
+
+By [@dfreelon](https://github.com/dfreelon/) with contributions from (in chronological order): 
+- [@pkreissel](https://github.com/pkreissel)
+- [@p-bach](https://github.com/p-bach)
+- [@TimoBaeuerle](https://github.com/TimoBaeuerle)
+- [@christinapwalker](https://github.com/christinapwalker)
+- [@codeteme](https://github.com/codeteme)

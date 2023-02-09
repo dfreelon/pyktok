@@ -1,4 +1,4 @@
-# You can run the streamlit as follows: streamlit run ui/app.py
+# You can run the streamlit as follows: streamlit run app.py
 
 import streamlit as st
 from src.pyktok import pyktok as pyk

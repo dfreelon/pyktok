@@ -14,13 +14,13 @@ browser_choice = st.selectbox('Choose your preferred browser:', browser_options)
 browser_name = 'chrome' if browser_choice == 'Chrome' else 'firefox'
 
 options = {
-    'download_single_video': 'To download a single TikTok video and one line of metadata to the file "video_data.csv"',
-    'download_metadata': 'To download metadata ONLY from the video URLs used in the preceding two lines of code',
-    'download_user_page': 'To download up to 30 metadata lines from a user page',
-    'download_hashtag_page': 'To download up to 15 metadata lines from a hashtag page',
-    'download_music_page': 'To download up to 15 metadata lines from a music page',
-    'download_comments': 'To download all video comments initially visible on the page',
-    'download_comments_multiple_videos': 'To download visible comments from multiple videos at the same time'
+    'download_single_video': 'Download a single TikTok video and one line of metadata to the file "video_data.csv"',
+    'download_metadata': 'Download only metadata from a single TikTok video to the file "video_data.csv"',
+    'download_user_page': 'Download up to 30 metadata lines from a user page',
+    'download_hashtag_page': 'Download up to 15 metadata lines from a hashtag page',
+    'download_music_page': 'Download up to 15 metadata lines from a music page',
+    'download_comments': 'Download all video comments initially visible on the page',
+    'download_comments_multiple_videos': 'Download visible comments from multiple videos at the same time'
 }
 
 selected_option = st.selectbox("Please select the option you would like to use", list(options.values()))

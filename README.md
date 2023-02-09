@@ -29,6 +29,7 @@ Pyktok relies on the following packages:
  - [Pandas](https://pandas.pydata.org/)
  - [Requests](https://pypi.org/project/requests/)
  - [Selenium](https://pypi.org/project/selenium/)
+ - [Streamlit](https://streamlit.io/)
  - [webdriver-manager](https://pypi.org/project/webdriver-manager/)
 
 **Usage**

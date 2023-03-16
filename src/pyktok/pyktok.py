@@ -137,15 +137,15 @@ def generate_data_row(video_obj):
     try:
         data_list.append(video_obj['authorStats']['followingCount'])
     except Exception:
-        data_list.append(np.nan)   
+        data_list.append(np.nan)
     try:
         data_list.append(video_obj['authorStats']['heartCount'])
     except Exception:
-        data_list.append(np.nan)   
+        data_list.append(np.nan)
     try:
         data_list.append(video_obj['authorStats']['videoCount'])
     except Exception:
-        data_list.append(np.nan)    
+        data_list.append(np.nan)
     try:
         data_list.append(video_obj['authorStats']['diggCount'])
     except Exception:
@@ -174,6 +174,8 @@ def get_tiktok_json(video_url,browser_name=None):
                       headers=headers,
                       cookies=cookies,
                       timeout=20)
+    # retain any new cookies that got set in this request
+    cookies = tt.cookies
     soup = BeautifulSoup(tt.text, "html.parser")
     tt_script = soup.find('script', attrs={'id':"SIGI_STATE"})
     try:
@@ -199,11 +201,12 @@ def save_tiktok(video_url,
         video_fn = regex_url.replace('/','_') + '.mp4'
         tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
         headers['referer'] = 'https://www.tiktok.com/'
-        tt_video = requests.get(tt_video_url,allow_redirects=True,headers=headers)
+        # include cookies with the video request
+        tt_video = requests.get(tt_video_url,allow_redirects=True,headers=headers,cookies=cookies)
         with open(video_fn, 'wb') as fn:
             fn.write(tt_video.content)
         print("Saved video\n",tt_video_url,"\nto\n",os.getcwd())
-    
+
     if metadata_fn != '':
         data_slot = tt_json['ItemModule'][video_id]
         data_row = generate_data_row(data_slot)
@@ -219,7 +222,7 @@ def save_tiktok(video_url,
             combined_data = data_row
         combined_data.to_csv(metadata_fn,index=False)
         print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
-        
+
 def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            save_video=False,
                            save_metadata=True,
@@ -232,7 +235,7 @@ def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
     if save_metadata == True and metadata_fn == '':
         metadata_fn = regex_url.replace('/','_') + '.csv'
     data = pd.DataFrame()
-    
+
     for v in data_loc:
         data = pd.concat([data,generate_data_row(data_loc[v])])
         if save_video == True:
@@ -256,7 +259,7 @@ def save_tiktok_multi_urls(video_urls,
         save_tiktok(u,save_video,metadata_fn,browser_name)
         time.sleep(random.randint(1, sleep))
     print('Saved',len(tt_urls),'videos and/or lines of metadata')
-    
+
 def save_visible_comments(video_url,
                           comment_fn=None,
                           browser='chromium'):
@@ -285,7 +288,7 @@ def save_visible_comments(video_url,
     except TimeoutException:
         print(video_url,"has no comments")
         return
-    
+
     soup = BeautifulSoup(driver.page_source, "html.parser")
     ids_tags = soup.find_all('div',{'class':re.compile('DivCommentContentContainer')})
     comment_ids = [i.get('id') for i in ids_tags]
@@ -295,20 +298,19 @@ def save_visible_comments(video_url,
     comments_tags = soup.find_all('p',attrs={'class':re.compile("PCommentText")})
     comments = [i.text.strip() for i in comments_tags]
     likes_tags = soup.find_all('span',attrs={'class':re.compile('SpanCount')})
-    likes = [int(i.text.strip()) 
-             if i.text.strip().isnumeric() 
-             else i.text.strip() 
-             for i 
+    likes = [int(i.text.strip())
+             if i.text.strip().isnumeric()
+             else i.text.strip()
+             for i
              in likes_tags]
     timestamp = datetime.now().isoformat()
     data_header = ['comment_id','styled_name','screen_name','comment','like_count','video_url','time_collected']
     data_list = [comment_ids,styled_names,screen_names,comments,likes,[video_url]*len(likes),[timestamp]*len(likes)]
     data_frame = pd.DataFrame(data_list,index=data_header).T
-    
+
     if comment_fn is None:
         regex_url = re.findall(url_regex,video_url)[0]
         comment_fn = regex_url.replace('/','_') + '_tiktok_comments.csv'
     combined_data = deduplicate_metadata(comment_fn,data_frame,'comment_id')
     combined_data.to_csv(comment_fn,index=False)
     print('Comments saved to file',comment_fn,'in',round(time.time() - start_time,2),'secs.')
-    

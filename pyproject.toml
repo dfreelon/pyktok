@@ -1,14 +1,6 @@
 [build-system]
-requires = ["hatchling",
-            "browser-cookie3",
-            "beautifulsoup4",
-            "numpy",
-            "pandas",
-            "requests",
-            "selenium",
-            "streamlit",
-            "webdriver-manager"]
 build-backend = "hatchling.build"
+requires = ["hatchling"]
 
 [project]
 name = "pyktok"
@@ -25,6 +17,18 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "browser-cookie3",
+    "beautifulsoup4",
+    "pandas",
+    "requests",
+    "selenium",
+    "streamlit",
+    "webdriver-manager",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/dfreelon/pyktok"
+
+[tool.pytest.ini_options]
+testpaths = "tests"

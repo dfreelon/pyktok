@@ -27,6 +27,11 @@ dependencies = [
     "webdriver-manager",
 ]
 
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/dfreelon/pyktok"
 

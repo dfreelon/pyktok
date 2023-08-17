@@ -24,7 +24,7 @@ dependencies = [
     "requests",
     "selenium",
     "streamlit",
-    "webdriver-manager",
+    "webdriver-manager==3.9.0",
 ]
 
 [project.optional-dependencies]

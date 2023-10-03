@@ -27,7 +27,7 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
+from webdriver_manager.core.os_manager import ChromeType
 from webdriver_manager.firefox import GeckoDriverManager
 
 headers = {'Accept-Encoding': 'gzip, deflate, sdch',
@@ -197,15 +197,28 @@ def save_tiktok(video_url,
     video_id = list(tt_json['ItemModule'].keys())[0]
 
     if save_video == True:
-        regex_url = re.findall(url_regex,video_url)[0]
-        video_fn = regex_url.replace('/','_') + '.mp4'
-        tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
-        headers['referer'] = 'https://www.tiktok.com/'
-        # include cookies with the video request
-        tt_video = requests.get(tt_video_url,allow_redirects=True,headers=headers,cookies=cookies)
+        regex_url = re.findall(url_regex, video_url)[0]
+        if 'imagePost' in tt_json['ItemModule'][video_id]:
+            slidecount = 1
+            for slide in tt_json['ItemModule'][video_id]['imagePost']['images']:
+                video_fn = regex_url.replace('/', '_') + '_slide_' + str(slidecount) + '.jpeg'
+                tt_video_url = slide['imageURL']['urlList'][0]
+                headers['referer'] = 'https://www.tiktok.com/'
+                # include cookies with the video request
+                tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+                with open(video_fn, 'wb') as fn:
+                    fn.write(tt_video.content)
+                slidecount += 1
+        else:
+            regex_url = re.findall(url_regex, video_url)[0]
+            video_fn = regex_url.replace('/', '_') + '.mp4'
+            tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
+            headers['referer'] = 'https://www.tiktok.com/'
+            # include cookies with the video request
+            tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
         with open(video_fn, 'wb') as fn:
             fn.write(tt_video.content)
-        print("Saved video\n",tt_video_url,"\nto\n",os.getcwd())
+        print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
 
     if metadata_fn != '':
         data_slot = tt_json['ItemModule'][video_id]

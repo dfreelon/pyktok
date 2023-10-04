@@ -37,7 +37,8 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
-cookies = browser_cookie3.load()
+browser = input("Please enter the name of a web browser on your system (e.g. firefox, chrome, edge, etc.):\n")
+cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
 url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
 
 def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):

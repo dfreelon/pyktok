@@ -1,6 +1,3 @@
-**March 16, 2023: Video downloading works again; comment downloading is still broken.** 
-
-**Unfortunately Pyktok's video and comment downloading functions are broken as of Feb 10, 2023. Downloading of metadata still works. If you know anything about web scraping, help us out on the Issues page. Thanks!**
 ## Pyktok
 **A simple module to collect video, text, and metadata from TikTok.**
 

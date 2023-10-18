@@ -17,19 +17,6 @@ import re
 import requests
 import time
 
-from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.chrome.service import Service as ChromeiumService #sic
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.os_manager import ChromeType
-from webdriver_manager.firefox import GeckoDriverManager
-
 headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept-Language': 'en-US,en;q=0.8',
            'Upgrade-Insecure-Requests': '1',
@@ -37,10 +24,20 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
-browser = input("Please enter the name of a web browser on your system (e.g. firefox, chrome, edge, etc.):\n")
-cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
 url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
+runsb_rec = 'We strongly recommend you run \'specify_browser\' first, which will allow you to run pyktok\'s functions without using the browser_name parameter every time. \'specify_browser\' takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.'
+runsb_err = 'No browser defined for cookie extraction. We strongly recommend you run \'specify_browser\', which takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.'
 
+print(runsb_rec)
+
+class BrowserNotSpecifiedError(Exception):
+    def __init__(self):
+        super().__init__(runsb_err)
+
+def specify_browser(browser):
+    global cookies
+    cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
+    
 def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):
     if os.path.exists(metadata_fn):
         metadata = pd.read_csv(metadata_fn,keep_default_na=False)
@@ -168,6 +165,8 @@ def fix_tt_url(tt_url):
         return tt_url
 '''
 def get_tiktok_json(video_url,browser_name=None):
+    if 'cookies' not in globals() and browser_name is None:
+        raise BrowserNotSpecifiedError
     global cookies
     if browser_name is not None:
         cookies = getattr(browser_cookie3,browser_name)(domain_name='www.tiktok.com')
@@ -190,6 +189,8 @@ def save_tiktok(video_url,
                 save_video=True,
                 metadata_fn='',
                 browser_name=None):
+    if 'cookies' not in globals() and browser_name is None:
+        raise BrowserNotSpecifiedError
     if save_video == False and metadata_fn == '':
         print('Since save_video and metadata_fn are both False/blank, the program did nothing.')
         return
@@ -242,10 +243,11 @@ def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            save_metadata=True,
                            metadata_fn='',
                            browser_name=None):
+    if 'cookies' not in globals() and browser_name is None:
+        raise BrowserNotSpecifiedError
     tt_json = get_tiktok_json(tiktok_url,browser_name)
     data_loc = tt_json['ItemModule']
     regex_url = re.findall(url_regex,tiktok_url)[0]
-    video_fn = 'tiktok_com_' + regex_url.replace('/','_') + '.mp4'
     if save_metadata == True and metadata_fn == '':
         metadata_fn = regex_url.replace('/','_') + '.csv'
     data = pd.DataFrame()
@@ -265,6 +267,8 @@ def save_tiktok_multi_urls(video_urls,
                            metadata_fn='',
                            sleep=4,
                            browser_name=None):
+    if 'cookies' not in globals() and browser_name is None:
+        raise BrowserNotSpecifiedError
     if type(video_urls) is str:
         tt_urls = open(video_urls).read().splitlines()
     else:
@@ -273,58 +277,3 @@ def save_tiktok_multi_urls(video_urls,
         save_tiktok(u,save_video,metadata_fn,browser_name)
         time.sleep(random.randint(1, sleep))
     print('Saved',len(tt_urls),'videos and/or lines of metadata')
-
-def save_visible_comments(video_url,
-                          comment_fn=None,
-                          browser='chromium'):
-    start_time = time.time()
-    c_options = ChromeOptions()
-    c_options.add_argument("--headless")
-    f_options = FirefoxOptions()
-    f_options.add_argument("--headless")
-    if browser == 'chromium':
-        driver = webdriver.Chrome(service=ChromeiumService(
-                                          ChromeDriverManager(
-                                          chrome_type=ChromeType.CHROMIUM).install()),
-                                  options=c_options)
-    elif browser == 'chrome':
-        driver = webdriver.Chrome(service=ChromeiumService(
-                                          ChromeDriverManager().install()),
-                                  options=c_options)
-    elif browser == 'firefox':
-        driver = webdriver.Firefox(service=FirefoxService(
-                                           GeckoDriverManager().install()),
-                                   options=f_options)
-    driver.get(video_url)
-    try:
-        wait = WebDriverWait(driver,10)
-        wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(@class,'SpanUserNameText')]")))
-    except TimeoutException:
-        print(video_url,"has no comments")
-        return
-
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    ids_tags = soup.find_all('div',{'class':re.compile('DivCommentContentContainer')})
-    comment_ids = [i.get('id') for i in ids_tags]
-    names_tags = soup.find_all('a',attrs={'class':re.compile("StyledUserLinkName")})
-    styled_names = [i.text.strip() for i in names_tags]
-    screen_names = [i.get('href').replace('/','') for i in names_tags]
-    comments_tags = soup.find_all('p',attrs={'class':re.compile("PCommentText")})
-    comments = [i.text.strip() for i in comments_tags]
-    likes_tags = soup.find_all('span',attrs={'class':re.compile('SpanCount')})
-    likes = [int(i.text.strip())
-             if i.text.strip().isnumeric()
-             else i.text.strip()
-             for i
-             in likes_tags]
-    timestamp = datetime.now().isoformat()
-    data_header = ['comment_id','styled_name','screen_name','comment','like_count','video_url','time_collected']
-    data_list = [comment_ids,styled_names,screen_names,comments,likes,[video_url]*len(likes),[timestamp]*len(likes)]
-    data_frame = pd.DataFrame(data_list,index=data_header).T
-
-    if comment_fn is None:
-        regex_url = re.findall(url_regex,video_url)[0]
-        comment_fn = regex_url.replace('/','_') + '_tiktok_comments.csv'
-    combined_data = deduplicate_metadata(comment_fn,data_frame,'comment_id')
-    combined_data.to_csv(comment_fn,index=False)
-    print('Comments saved to file',comment_fn,'in',round(time.time() - start_time,2),'secs.')

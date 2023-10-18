@@ -32,13 +32,15 @@ Pyktok relies on the following packages:
  - [Requests](https://pypi.org/project/requests/)
  - [Selenium](https://pypi.org/project/selenium/)
  - [Streamlit](https://streamlit.io/)
- - [webdriver-manager](https://pypi.org/project/webdriver-manager/)
 
 **Usage**
 
 ```python
 import pyktok as pyk
+pyk.specify_browser('chrome') 
 ```
+We strongly recommend you run the `specify_browser` function first to initialize Pyktok with a cookie from your browser of choice (e.g. 'firefox,' 'edge' etc.). If you don't, you must use the `browser_name` parameter in most other functions, otherwise they will throw an error.
+
 Please note that functions that start with "get" will return data to working memory, while those starting with "save" will save data to disk without returning anything.
 
 To download a single TikTok video and one line of metadata to the file "video_data.csv" (`'chrome'` can be changed to `'firefox'` if necessary):
@@ -85,17 +87,6 @@ pyk.save_tiktok_multi_page('https://www.tiktok.com/music/Anti-Hero-7156822419213
 To get an individual video's JSON object:
 ```python	
 tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
-```
-To download all video comments initially visible on the page (previous versions of this function used TT's hidden API to capture many thousands of comments, but TT has disabled this feature, so the current function uses browser automation--which is unfortunately very slow--to pull only the comments that initially appear. However, you could use this function to download comments from videos periodically, which should give you a larger number of comments)
-```python
-pyk.save_visible_comments('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
-```			
-
-To download visible comments from multiple videos at the same time, saving to the same file (to save each video's comments to its own file, leave the second parameter of `save_visible_comments` blank):
-```python
-#using the same tiktok_videos list created above
-for v in tiktok_videos:
-    pyk.save_visible_comments(v,'tiktok_comments.csv')
 ```
 
 TikTok's servers may not love it if you run some of the above functions at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

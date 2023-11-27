@@ -185,6 +185,28 @@ def get_tiktok_json(video_url,browser_name=None):
         return
     return tt_json
 
+
+def alt_get_tiktok_json(video_url,browser_name=None):
+    if 'cookies' not in globals() and browser_name is None:
+        raise BrowserNotSpecifiedError
+    global cookies
+    if browser_name is not None:
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='www.tiktok.com')
+    tt = requests.get(video_url,
+                      headers=headers,
+                      cookies=cookies,
+                      timeout=20)
+    # retain any new cookies that got set in this request
+    cookies = tt.cookies
+    soup = BeautifulSoup(tt.text, "html.parser")
+    tt_script = soup.find('script', attrs={'id':"__UNIVERSAL_DATA_FOR_REHYDRATION__"})
+    try:
+        tt_json = json.loads(tt_script.string)
+    except AttributeError:
+        print("The function encountered a downstream error and did not deliver any data, which happens periodically for various reasons. Please try again later.")
+        return
+    return tt_json
+
 def save_tiktok(video_url,
                 save_video=True,
                 metadata_fn='',
@@ -196,47 +218,76 @@ def save_tiktok(video_url,
         return
 
     tt_json = get_tiktok_json(video_url,browser_name)
-    video_id = list(tt_json['ItemModule'].keys())[0]
 
-    if save_video == True:
-        regex_url = re.findall(url_regex, video_url)[0]
-        if 'imagePost' in tt_json['ItemModule'][video_id]:
-            slidecount = 1
-            for slide in tt_json['ItemModule'][video_id]['imagePost']['images']:
-                video_fn = regex_url.replace('/', '_') + '_slide_' + str(slidecount) + '.jpeg'
-                tt_video_url = slide['imageURL']['urlList'][0]
+    if tt_json is not None:
+        video_id = list(tt_json['ItemModule'].keys())[0]
+
+        if save_video == True:
+            regex_url = re.findall(url_regex, video_url)[0]
+            if 'imagePost' in tt_json['ItemModule'][video_id]:
+                slidecount = 1
+                for slide in tt_json['ItemModule'][video_id]['imagePost']['images']:
+                    video_fn = regex_url.replace('/', '_') + '_slide_' + str(slidecount) + '.jpeg'
+                    tt_video_url = slide['imageURL']['urlList'][0]
+                    headers['referer'] = 'https://www.tiktok.com/'
+                    # include cookies with the video request
+                    tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+                    with open(video_fn, 'wb') as fn:
+                        fn.write(tt_video.content)
+                    slidecount += 1
+            else:
+                regex_url = re.findall(url_regex, video_url)[0]
+                video_fn = regex_url.replace('/', '_') + '.mp4'
+                tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
                 headers['referer'] = 'https://www.tiktok.com/'
                 # include cookies with the video request
                 tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
-                with open(video_fn, 'wb') as fn:
-                    fn.write(tt_video.content)
-                slidecount += 1
-        else:
-            regex_url = re.findall(url_regex, video_url)[0]
-            video_fn = regex_url.replace('/', '_') + '.mp4'
-            tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
-            headers['referer'] = 'https://www.tiktok.com/'
-            # include cookies with the video request
-            tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+            with open(video_fn, 'wb') as fn:
+                fn.write(tt_video.content)
+            print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
+
+        if metadata_fn != '':
+            data_slot = tt_json['ItemModule'][video_id]
+            data_row = generate_data_row(data_slot)
+            try:
+                user_id = list(tt_json['UserModule']['users'].keys())[0]
+                data_row.loc[0,"author_verified"] = tt_json['UserModule']['users'][user_id]['verified']
+            except Exception:
+                pass
+            if os.path.exists(metadata_fn):
+                metadata = pd.read_csv(metadata_fn,keep_default_na=False)
+                combined_data = pd.concat([metadata,data_row])
+            else:
+                combined_data = data_row
+            combined_data.to_csv(metadata_fn,index=False)
+            print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
+
+    else:
+        tt_json = alt_get_tiktok_json(video_url,browser_name)
+        regex_url = re.findall(url_regex, video_url)[0]
+        video_fn = regex_url.replace('/', '_') + '.mp4'
+        tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
+        headers['referer'] = 'https://www.tiktok.com/'
+        # include cookies with the video request
+        tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
         with open(video_fn, 'wb') as fn:
             fn.write(tt_video.content)
-        print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
 
-    if metadata_fn != '':
-        data_slot = tt_json['ItemModule'][video_id]
-        data_row = generate_data_row(data_slot)
-        try:
-            user_id = list(tt_json['UserModule']['users'].keys())[0]
-            data_row.loc[0,"author_verified"] = tt_json['UserModule']['users'][user_id]['verified']
-        except Exception:
-            pass
-        if os.path.exists(metadata_fn):
-            metadata = pd.read_csv(metadata_fn,keep_default_na=False)
-            combined_data = pd.concat([metadata,data_row])
-        else:
-            combined_data = data_row
-        combined_data.to_csv(metadata_fn,index=False)
-        print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
+        if metadata_fn != '':
+            data_slot = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']
+            data_row = generate_data_row(data_slot)
+            try:
+                user_id = list(tt_json['UserModule']['users'].keys())[0]
+                data_row.loc[0,"author_verified"] = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['author']
+            except Exception:
+                pass
+            if os.path.exists(metadata_fn):
+                metadata = pd.read_csv(metadata_fn,keep_default_na=False)
+                combined_data = pd.concat([metadata,data_row])
+            else:
+                combined_data = data_row
+            combined_data.to_csv(metadata_fn,index=False)
+            print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
 
 def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            save_video=False,

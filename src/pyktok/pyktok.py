@@ -181,7 +181,6 @@ def get_tiktok_json(video_url,browser_name=None):
     try:
         tt_json = json.loads(tt_script.string)
     except AttributeError:
-        print("The function encountered a downstream error and did not deliver any data, which happens periodically for various reasons. Please try again later.")
         return
     return tt_json
 
@@ -260,7 +259,6 @@ def save_tiktok(video_url,
             else:
                 combined_data = data_row
             combined_data.to_csv(metadata_fn,index=False)
-            print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
 
     else:
         tt_json = alt_get_tiktok_json(video_url,browser_name)
@@ -287,7 +285,11 @@ def save_tiktok(video_url,
             else:
                 combined_data = data_row
             combined_data.to_csv(metadata_fn,index=False)
-            print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
+
+    if save_video == True:
+        print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
+    if metadata_fn != '':
+        print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
 
 def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            save_video=False,

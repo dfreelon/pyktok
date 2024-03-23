@@ -290,6 +290,7 @@ def save_tiktok(video_url,
         print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
     if metadata_fn != '':
         print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
+    return video_fn, metadata_fn
 
 def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            save_video=False,

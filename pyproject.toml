@@ -24,6 +24,12 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "browser-cookie3",
+    "beautifulsoup4",
+    "numpy",
+    "pandas",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/dfreelon/pyktok"

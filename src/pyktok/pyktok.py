@@ -4,7 +4,7 @@ Created on Thu Jul 14 14:06:01 2022
 
 @author: freelon
 """
-
+from __future__ import annotations  # make type hints work with older Python versions
 import browser_cookie3
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -16,6 +16,7 @@ import random
 import re
 import requests
 import time
+
 
 headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept-Language': 'en-US,en;q=0.8',
@@ -34,9 +35,12 @@ class BrowserNotSpecifiedError(Exception):
     def __init__(self):
         super().__init__(runsb_err)
 
-def specify_browser(browser):
+def specify_browser(browser: str | None):
     global cookies
-    cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
+    if browser is None:
+        cookies = dict()
+    else:
+        cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
     
 def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):
     if os.path.exists(metadata_fn):

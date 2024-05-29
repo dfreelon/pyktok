@@ -17,6 +17,9 @@ import re
 import requests
 import time
 
+global cookies
+cookies = dict()
+
 headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept-Language': 'en-US,en;q=0.8',
            'Upgrade-Insecure-Requests': '1',
@@ -25,7 +28,7 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
 url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
-runsb_rec = 'We strongly recommend you run \'specify_browser\' first, which will allow you to run pyktok\'s functions without using the browser_name parameter every time. \'specify_browser\' takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.'
+runsb_rec = ('We strongly recommend you run \'specify_browser\' first, as some of pyktok\'s functions may require it. \'specify_browser\' takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.')
 runsb_err = 'No browser defined for cookie extraction. We strongly recommend you run \'specify_browser\', which takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.'
 
 print(runsb_rec)
@@ -183,7 +186,6 @@ def get_tiktok_json(video_url,browser_name=None):
     except AttributeError:
         return
     return tt_json
-
 
 def alt_get_tiktok_json(video_url,browser_name=None):
     if 'cookies' not in globals() and browser_name is None:

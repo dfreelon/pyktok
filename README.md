@@ -100,3 +100,4 @@ Mostly by [@dfreelon](https://github.com/dfreelon/) with contributions from (in 
 - [@codeteme](https://github.com/codeteme)
 - [@dphiffer](https://github.com/dphiffer)
 - [@BillyBSig](https://github.com/BillyBSig)
+- [@tomasruizt](https://github.com/tomasruizt)

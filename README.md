@@ -36,7 +36,7 @@ Pyktok relies on the following packages:
 
 ```python
 import pyktok as pyk
-pyk.specify_browser('chrome') 
+pyk.specify_browser('chrome') #browser specification may or may not be necessary depending on your local settings
 ```
 We strongly recommend you run the `specify_browser` function first to initialize Pyktok with a cookie from your browser of choice (e.g. 'firefox,' 'edge' etc.). If you don't, you must use the `browser_name` parameter in most other functions, otherwise they will throw an error.
 

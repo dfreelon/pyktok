@@ -211,7 +211,8 @@ def alt_get_tiktok_json(video_url,browser_name=None):
 def save_tiktok(video_url,
                 save_video=True,
                 metadata_fn='',
-                browser_name=None):
+                browser_name=None,
+                return_fns=False):
     if 'cookies' not in globals() and browser_name is None:
         raise BrowserNotSpecifiedError
     if save_video == False and metadata_fn == '':
@@ -292,6 +293,9 @@ def save_tiktok(video_url,
         print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
     if metadata_fn != '':
         print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
+
+    if return_fns == True:
+        return {'video_fn':video_fn,'metadata_fn':metadata_fn}
 
 def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            save_video=False,

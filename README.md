@@ -29,7 +29,6 @@ Pyktok relies on the following packages:
  - [Numpy](https://numpy.org/)
  - [Pandas](https://pandas.pydata.org/)
  - [Requests](https://pypi.org/project/requests/)
- - [Selenium](https://pypi.org/project/selenium/)
  - [Streamlit](https://streamlit.io/)
 
 **Usage**

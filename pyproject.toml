@@ -5,7 +5,6 @@ requires = ["hatchling",
             "numpy",
             "pandas",
             "requests",
-            "selenium",
             "streamlit"]
 build-backend = "hatchling.build"
 

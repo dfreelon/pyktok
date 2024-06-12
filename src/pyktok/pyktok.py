@@ -265,14 +265,16 @@ def save_tiktok(video_url,
 
     else:
         tt_json = alt_get_tiktok_json(video_url,browser_name)
-        regex_url = re.findall(url_regex, video_url)[0]
-        video_fn = regex_url.replace('/', '_') + '.mp4'
-        tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
-        headers['referer'] = 'https://www.tiktok.com/'
-        # include cookies with the video request
-        tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
-        with open(video_fn, 'wb') as fn:
-            fn.write(tt_video.content)
+        if save_video == True:
+            regex_url = re.findall(url_regex, video_url)[0]
+            video_fn = regex_url.replace('/', '_') + '.mp4'
+            tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
+            headers['referer'] = 'https://www.tiktok.com/'
+            # include cookies with the video request
+            tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
+            with open(video_fn, 'wb') as fn:
+                fn.write(tt_video.content)
+            print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
 
         if metadata_fn != '':
             data_slot = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']
@@ -288,14 +290,10 @@ def save_tiktok(video_url,
             else:
                 combined_data = data_row
             combined_data.to_csv(metadata_fn,index=False)
+            print("Saved metadata for video\n", video_url, "\nto\n", os.getcwd())
 
-    if save_video == True:
-        print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
-    if metadata_fn != '':
-        print("Saved metadata for video\n",video_url,"\nto\n",os.getcwd())
-
-    if return_fns == True:
-        return {'video_fn':video_fn,'metadata_fn':metadata_fn}
+        if return_fns == True:
+            return {'video_fn':video_fn,'metadata_fn':metadata_fn}
 
 def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
                            save_video=False,

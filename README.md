@@ -22,7 +22,7 @@ Please note that [a number of US states have banned TikTok on state-owned device
 
 **Requirements**
 
-Pyktok relies on the following packages:
+Pyktok relies on the following external packages:
 
  - [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
  - [browser-cookie3](https://pypi.org/project/browser-cookie3/)
@@ -30,6 +30,7 @@ Pyktok relies on the following packages:
  - [Pandas](https://pandas.pydata.org/)
  - [Requests](https://pypi.org/project/requests/)
  - [Streamlit](https://streamlit.io/)
+ - [TikTokApi](https://github.com/davidteather/TikTok-Api)
 
 **Usage**
 

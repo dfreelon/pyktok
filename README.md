@@ -64,27 +64,27 @@ pyk.save_tiktok_multi_urls(tiktok_videos,
                      	  'tiktok_data.csv',
                      	   1)
 ```  
-To download up to 30 metadata lines from a *user* page (note, for this to work you must set the `browser_name` parameter to a browser on your system that you have used to access TikTok *and* that is supported by `browser_cookie3`. I think the only valid values are `'chrome'` and `'firefox'`. Also you can get the videos by setting `save_video` to `True`): 
+To download around 30 metadata lines from a *user* page (you can get the videos by setting `save_video` to `True`): 
 
 ```python    
-pyk.save_tiktok_multi_page('https://www.tiktok.com/@tiktok',save_video=False,save_metadata=True,browser_name='chrome')
+pyk.save_tiktok_multi_page('tiktok',save_video=False,save_metadata=True)
 ```
 
-To download up to 15 metadata lines from a *hashtag* page: 
+To download around 30 metadata lines from a *hashtag* page: 
 
 ```python    
-pyk.save_tiktok_multi_page('https://www.tiktok.com/tag/datascience?lang=en',save_video=False,save_metadata=True)
+pyk.save_tiktok_multi_page('datascience',save_video=False,save_metadata=True)
 ```
 
-To download up to 15 metadata lines from a *music* page: 
+To download around 30 metadata lines from related videos from a *video* page: 
 
 ```python    
-pyk.save_tiktok_multi_page('https://www.tiktok.com/music/Anti-Hero-7156822419213125634?lang=en',save_video=False,save_metadata=True)
+pyk.save_tiktok_multi_page('https://www.tiktok.com/@tiktok/video/7106594312292453675',save_video=False,save_metadata=True)
 ```
                        
 To get an individual video's JSON object:
 ```python	
-tt_json = pyk.get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
+tt_json = pyk.alt_get_tiktok_json('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1')
 ```
 
 TikTok's servers may not love it if you run some of the above functions at full speed, so I recommend increasing the `sleep` parameter if you get autobanned. I haven't tested this extensively so I have no idea if or when autobans start to kick in.

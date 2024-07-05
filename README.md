@@ -5,7 +5,7 @@ We developed Pyktok ("pick-tock") because none of the existing TikTok data colle
 
  - Download TikTok videos
  - Download video metadata
- - Download 15-30 videos and/or metadata lines from hashtag, user, and music pages displaying multiple videos
+ - Download around 30 videos and/or metadata lines from hashtag, user, and music pages displaying multiple videos (you can try to specify the exact number but TikTok doesn't always follow it exactly)
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
 
 R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of Pyktok.

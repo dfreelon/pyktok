@@ -5,6 +5,7 @@ Created on Thu Jul 14 14:06:01 2022
 @author: freelon
 """
 
+import asyncio
 import browser_cookie3
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -15,10 +16,14 @@ import pandas as pd
 import random
 import re
 import requests
+from TikTokApi import TikTokApi
 import time
 
 global cookies
 cookies = dict()
+ms_token = os.environ.get(
+    "ms_token", None
+)
 
 headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept-Language': 'en-US,en;q=0.8',
@@ -28,7 +33,7 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
 url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
-runsb_rec = ('We strongly recommend you run \'specify_browser\' first, as some of pyktok\'s functions may require it. \'specify_browser\' takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.')
+runsb_rec = ('If pyktok does not operate as expected, you may find it helpful to run the \'specify_browser\' function. \'specify_browser\' takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.')
 runsb_err = 'No browser defined for cookie extraction. We strongly recommend you run \'specify_browser\', which takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.'
 
 print(runsb_rec)
@@ -295,29 +300,45 @@ def save_tiktok(video_url,
         if return_fns == True:
             return {'video_fn':video_fn,'metadata_fn':metadata_fn}
 
-def save_tiktok_multi_page(tiktok_url, #can be a user, hashtag, or music URL
-                           save_video=False,
-                           save_metadata=True,
-                           metadata_fn='',
-                           browser_name=None):
-    if 'cookies' not in globals() and browser_name is None:
-        raise BrowserNotSpecifiedError
-    tt_json = get_tiktok_json(tiktok_url,browser_name)
-    data_loc = tt_json['ItemModule']
-    regex_url = re.findall(url_regex,tiktok_url)[0]
-    if save_metadata == True and metadata_fn == '':
-        metadata_fn = regex_url.replace('/','_') + '.csv'
-    data = pd.DataFrame()
+async def get_video_urls(tt_ent,
+                         ent_type="user",
+                         video_ct=30):
+    if ent_type not in ['user','hashtag','video_related']:
+        raise Exception('Only allowed `ent_type` values are "user", "hashtag", or "video_related".')
 
-    for v in data_loc:
-        data = pd.concat([data,generate_data_row(data_loc[v])])
-        if save_video == True:
-            video_url = 'https://www.tiktok.com/@' + data_loc[v]['author'] + '/video/' + data_loc[v]['id']
-            save_tiktok(video_url,True)
-    if save_metadata == True:
-        data = deduplicate_metadata(metadata_fn,data)
-        data.to_csv(metadata_fn,index=False)
-    print('Saved',len(data_loc),'videos and/or lines of metadata')
+    url_p1 = "https://www.tiktok.com/@"
+    url_p2 = "/video/"
+    tt_list = []
+
+    async with TikTokApi() as api:
+        await api.create_sessions(headless=False,
+                                  ms_tokens=[ms_token],
+                                  num_sessions=1,
+                                  sleep_after=3)
+        if ent_type == 'user':
+            ent = api.user(tt_ent)
+        elif ent_type == 'hashtag':
+            ent = api.hashtag(name=tt_ent)
+        else:
+            ent = api.video(url=tt_ent)
+
+        if ent_type in ['user','hashtag']:
+            async for video in ent.videos(count=video_ct):
+                tt_list.append(video.as_dict)
+        else:
+            async for related_video in ent.related_videos(count=video_ct):
+                tt_list.append(related_video.as_dict)
+
+    id_list = [i['id'] for i in tt_list]
+    if ent_type == 'user':
+        video_list = [url_p1 + tt_ent + url_p2 + i for i in id_list]
+    else:
+        author_list = [i['author']['uniqueId'] for i in tt_list]
+        video_list = []
+        for n, i in enumerate(author_list):
+            video_url = url_p1 + author_list[n] + url_p2 + id_list[n]
+            video_list.append(video_url)
+    return video_list
 
 def save_tiktok_multi_urls(video_urls,
                            save_video=True,
@@ -334,3 +355,20 @@ def save_tiktok_multi_urls(video_urls,
         save_tiktok(u,save_video,metadata_fn,browser_name)
         time.sleep(random.randint(1, sleep))
     print('Saved',len(tt_urls),'videos and/or lines of metadata')
+
+def save_tiktok_multi_page(tt_ent,
+                           ent_type="user",
+                           video_ct=30,
+                           save_video=True,
+                           metadata_fn='',
+                           sleep=4,
+                           browser_name=None):
+    video_urls = asyncio.run(get_video_urls(tt_ent,
+                                            ent_type,
+                                            video_ct))
+    return save_tiktok_multi_urls(video_urls,
+                                  save_video,
+                                  metadata_fn,
+                                  sleep,
+                                  browser_name)
+

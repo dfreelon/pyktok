@@ -1,16 +1,18 @@
 [build-system]
-requires = ["hatchling",
+requires = ["asyncio",
             "browser-cookie3",
             "beautifulsoup4",
+			"hatchling",
             "numpy",
             "pandas",
             "requests",
-            "streamlit"]
+            "streamlit",
+			"TikTokApi"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pyktok"
-version = "0.0.22"
+version = "0.0.23"
 authors = [
   { name="Deen Freelon", email="dfreelon@gmail.com"},
 ]

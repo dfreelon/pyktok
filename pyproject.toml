@@ -1,6 +1,5 @@
 [build-system]
-requires = ["asyncio",
-            "browser-cookie3",
+requires = ["browser-cookie3",
             "beautifulsoup4",
 			"hatchling",
             "numpy",
@@ -12,7 +11,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyktok"
-version = "0.0.24"
+version = "0.0.25"
 authors = [
   { name="Deen Freelon", email="dfreelon@gmail.com"},
 ]

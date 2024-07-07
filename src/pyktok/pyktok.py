@@ -279,7 +279,7 @@ def save_tiktok(video_url,
             tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
             with open(video_fn, 'wb') as fn:
                 fn.write(tt_video.content)
-            print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
+            print("Saved video\n", video_url, "\nto\n", os.getcwd())
 
         if metadata_fn != '':
             data_slot = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']
@@ -302,7 +302,8 @@ def save_tiktok(video_url,
 
 async def get_video_urls(tt_ent,
                          ent_type="user",
-                         video_ct=30):
+                         video_ct=30,
+                         headless=True):
     if ent_type not in ['user','hashtag','video_related']:
         raise Exception('Only allowed `ent_type` values are "user", "hashtag", or "video_related".')
 
@@ -311,11 +312,12 @@ async def get_video_urls(tt_ent,
     tt_list = []
 
     async with TikTokApi() as api:
-        await api.create_sessions(ms_tokens=[ms_token],
+        await api.create_sessions(headless=headless,
+                                  ms_tokens=[ms_token],
                                   num_sessions=1,
                                   sleep_after=3,
-                                  context_options={'viewport': {'width': 1280,
-                                                                'height': 1024 },
+                                  context_options={'viewport': {'width': 0,
+                                                                'height': 0},
                                                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36'})
         if ent_type == 'user':
             ent = api.user(tt_ent)
@@ -361,15 +363,17 @@ def save_tiktok_multi_urls(video_urls,
 def save_tiktok_multi_page(tt_ent,
                            ent_type="user",
                            video_ct=30,
+                           headless=True,
                            save_video=True,
                            metadata_fn='',
                            sleep=4,
                            browser_name=None):
     video_urls = asyncio.run(get_video_urls(tt_ent,
                                             ent_type,
-                                            video_ct))
-    return save_tiktok_multi_urls(video_urls,
-                                  save_video,
-                                  metadata_fn,
-                                  sleep,
-                                  browser_name)
+                                            video_ct,
+                                            headless))
+    save_tiktok_multi_urls(video_urls,
+                           save_video,
+                           metadata_fn,
+                           sleep,
+                           browser_name)

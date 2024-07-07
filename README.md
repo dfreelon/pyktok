@@ -1,5 +1,5 @@
 ## Pyktok
-$\color{red} NOTE:\ save\\_tiktok\\_multi\\_page\ works\\ again,\ but\ now\ requires\ headed\ Chromium\ calls\ which\ may\ limit\ its\ utility\ to\ GUI\ operating\ systems.$
+$\color{red} NOTE:\ 6/7/24:\ save\\_tiktok\\_multi\\_page\ works\\ again!$
 
 **A simple module to collect video, text, and metadata from TikTok.**
 
@@ -67,7 +67,6 @@ pyk.save_tiktok_multi_urls(tiktok_videos,
                      	  'tiktok_data.csv',
                      	   1)
 ```
-_Please note that `save_tiktok_multi_page` may require a GUI operating system such as Windows, MacOS, or Ubuntu. I've only tested it with Windows so far._
 
 To download around 30 metadata lines from a *user* page (you can get the videos by setting `save_video` to `True`): 
 

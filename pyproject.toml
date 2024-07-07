@@ -12,7 +12,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyktok"
-version = "0.0.23"
+version = "0.0.24"
 authors = [
   { name="Deen Freelon", email="dfreelon@gmail.com"},
 ]

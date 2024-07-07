@@ -311,10 +311,12 @@ async def get_video_urls(tt_ent,
     tt_list = []
 
     async with TikTokApi() as api:
-        await api.create_sessions(headless=False,
-                                  ms_tokens=[ms_token],
+        await api.create_sessions(ms_tokens=[ms_token],
                                   num_sessions=1,
-                                  sleep_after=3)
+                                  sleep_after=3,
+                                  context_options={'viewport': {'width': 1280,
+                                                                'height': 1024 },
+                                                   'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36'})
         if ent_type == 'user':
             ent = api.user(tt_ent)
         elif ent_type == 'hashtag':
@@ -371,4 +373,3 @@ def save_tiktok_multi_page(tt_ent,
                                   metadata_fn,
                                   sleep,
                                   browser_name)
-

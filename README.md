@@ -74,6 +74,8 @@ To download around 30 metadata lines from a *user* page (you can get the videos 
 pyk.save_tiktok_multi_page('tiktok',save_video=False,save_metadata=True)
 ```
 
+If this or the following two functions delivers an `EmptyResponseException`, try setting `headless=False`.
+
 To download around 30 metadata lines from a *hashtag* page: 
 
 ```python    

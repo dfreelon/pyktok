@@ -1,5 +1,5 @@
 ## Pyktok
-$\color{red} NOTE:\ 6/7/24:\ save\\_tiktok\\_multi\\_page\ works\\ again!$
+$\color{red} NOTE:\ 6/9/24:\ \textbf{save\\_tiktok\\_multi\\_page}\ and\ \textbf{save\\_tiktok\\_comments}\ work\\ again!$
 
 **A simple module to collect video, text, and metadata from TikTok.**
 
@@ -71,7 +71,7 @@ pyk.save_tiktok_multi_urls(tiktok_videos,
 To download around 30 metadata lines from a *user* page (you can get the videos by setting `save_video` to `True`): 
 
 ```python    
-pyk.save_tiktok_multi_page('tiktok',save_video=False,save_metadata=True)
+pyk.save_tiktok_multi_page('tiktok',ent_type='user',save_video=False,save_metadata=True)
 ```
 
 If this or the following two functions delivers an `EmptyResponseException`, try setting `headless=False`.
@@ -79,13 +79,19 @@ If this or the following two functions delivers an `EmptyResponseException`, try
 To download around 30 metadata lines from a *hashtag* page: 
 
 ```python    
-pyk.save_tiktok_multi_page('datascience',save_video=False,save_metadata=True)
+pyk.save_tiktok_multi_page('datascience',ent_type='hashtag',save_video=False,save_metadata=True)
 ```
 
 To download around 30 metadata lines from related videos from a *video* page: 
 
 ```python    
-pyk.save_tiktok_multi_page('https://www.tiktok.com/@tiktok/video/7106594312292453675',save_video=False,save_metadata=True)
+pyk.save_tiktok_multi_page('https://www.tiktok.com/@tiktok/video/7106594312292453675',ent_type='video_related',save_video=False,save_metadata=True)
+```
+
+To download around 30 comments from a video (the underlying code interprets `comment_count` rather loosely): 
+
+```python    
+pyk.save_tiktok_comments('https://www.tiktok.com/@tiktok/video/7106594312292453675',comment_count=30,save_comments=True,return_comments=False)
 ```
                        
 To get an individual video's JSON object:

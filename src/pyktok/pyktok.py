@@ -21,6 +21,10 @@ import time
 
 global cookies
 cookies = dict()
+
+url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
+video_id_regex = '(?<=/video/)([0-9]+)'
+
 ms_token = os.environ.get(
     "ms_token", None
 )
@@ -32,7 +36,10 @@ headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
-url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
+context_dict = {'viewport': {'width': 0,
+                             'height': 0},
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36'}
+
 runsb_rec = ('If pyktok does not operate as expected, you may find it helpful to run the \'specify_browser\' function. \'specify_browser\' takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.')
 runsb_err = 'No browser defined for cookie extraction. We strongly recommend you run \'specify_browser\', which takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.'
 
@@ -300,6 +307,8 @@ def save_tiktok(video_url,
         if return_fns == True:
             return {'video_fn':video_fn,'metadata_fn':metadata_fn}
 
+# the function below is based on this one: https://github.com/davidteather/TikTok-Api/blob/main/examples/user_example.py
+
 async def get_video_urls(tt_ent,
                          ent_type="user",
                          video_ct=30,
@@ -316,9 +325,7 @@ async def get_video_urls(tt_ent,
                                   ms_tokens=[ms_token],
                                   num_sessions=1,
                                   sleep_after=3,
-                                  context_options={'viewport': {'width': 0,
-                                                                'height': 0},
-                                                   'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36'})
+                                  context_options=context_dict)
         if ent_type == 'user':
             ent = api.user(tt_ent)
         elif ent_type == 'hashtag':
@@ -377,3 +384,36 @@ def save_tiktok_multi_page(tt_ent,
                            metadata_fn,
                            sleep,
                            browser_name)
+
+# the function below is based on this one: https://github.com/davidteather/TikTok-Api/blob/main/examples/comment_example.py
+
+async def get_comments(video_id,comment_count=30,headless=True):
+    comment_list = []
+    async with TikTokApi() as api:
+        await api.create_sessions(headless=headless,
+                                  ms_tokens=[ms_token],
+                                  num_sessions=1,
+                                  sleep_after=3,
+                                  context_options=context_dict)
+        video = api.video(id=video_id)
+        async for comment in video.comments(count=comment_count):
+            comment_list.append(comment.as_dict)
+    return pd.DataFrame(comment_list)
+
+def save_tiktok_comments(video_url,
+                         filename='',
+                         comment_count=30,
+                         headless=True,
+                         save_comments=True,
+                         return_comments=True):
+    video_id = int(re.findall(video_id_regex,video_url)[0])
+    comment_results = asyncio.run(get_comments(video_id,comment_count,headless=headless))
+    if save_comments:
+        if filename == '':
+            regex_url = re.findall(url_regex, video_url)[0]
+            filename = regex_url.replace('/', '_') + '_comments.csv'
+        data_to_save = deduplicate_metadata(filename,comment_results,'cid')
+        data_to_save.to_csv(filename,mode='w',index=False)
+        print(len(comment_results),"comments saved.")
+    if return_comments:
+        return comment_results

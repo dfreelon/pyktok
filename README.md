@@ -1,5 +1,5 @@
 ## Pyktok
-$\color{red} NOTE:\ 6/9/24:\ \textbf{save\\_tiktok\\_multi\\_page}\ and\ \textbf{save\\_tiktok\\_comments}\ work\\ again!$
+$\color{red} NOTE:\ 7/9/24:\ \textbf{save\\_tiktok\\_multi\\_page}\ and\ \textbf{save\\_tiktok\\_comments}\ work\\ again!$
 
 **A simple module to collect video, text, and metadata from TikTok.**
 
@@ -10,6 +10,8 @@ We developed Pyktok ("pick-tock") because none of the existing TikTok data colle
  - Download around 30 videos and/or metadata lines from hashtag, user, and the "You May Like" sections of video pages (you can try to specify the exact number but TikTok doesn't always follow it exactly)
  - Download video comments
  - Download full TikTok JSON data objects (in case you want to extract data from parts of the object not included in the above functions)
+
+**Like Pyktok? Want to say thanks (and help fund future updates)? I accept [Venmo](https://venmo.com/Deen-Freelon) and [Cash App](https://cash.app/$dfreelon).**
 
 R users, check out [traktok](https://github.com/JBGruber/traktok), an R port of Pyktok.
 

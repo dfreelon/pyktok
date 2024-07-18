@@ -422,7 +422,7 @@ def save_tiktok_comments(video_url,
                          save_comments=True,
                          return_comments=True):
     video_id = int(re.findall(video_id_regex,video_url)[0])
-    comment_results = asyncio.run(get_comments(video_id,comment_count,headless=headless))
+    comment_results = asyncio.run(get_comments(video_id,comment_count,headless))
     if save_comments:
         if filename == '':
             regex_url = re.findall(url_regex, video_url)[0]

@@ -321,7 +321,7 @@ async def get_video_urls(tt_ent,
     tt_list = []
 
     async with TikTokApi() as api:
-        await api.create_sessions(headless=headless,
+        await api.create_sessions(headless,
                                   ms_tokens=[ms_token],
                                   num_sessions=1,
                                   sleep_after=3,
@@ -390,7 +390,7 @@ def save_tiktok_multi_page(tt_ent,
 async def get_comments(video_id,comment_count=30,headless=True):
     comment_list = []
     async with TikTokApi() as api:
-        await api.create_sessions(headless=headless,
+        await api.create_sessions(headless,
                                   ms_tokens=[ms_token],
                                   num_sessions=1,
                                   sleep_after=3,
@@ -407,7 +407,7 @@ def save_tiktok_comments(video_url,
                          save_comments=True,
                          return_comments=True):
     video_id = int(re.findall(video_id_regex,video_url)[0])
-    comment_results = asyncio.run(get_comments(video_id,comment_count,headless=headless))
+    comment_results = asyncio.run(get_comments(video_id,comment_count,headless))
     if save_comments:
         if filename == '':
             regex_url = re.findall(url_regex, video_url)[0]

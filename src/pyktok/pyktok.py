@@ -52,7 +52,7 @@ class BrowserNotSpecifiedError(Exception):
 def specify_browser(browser):
     global cookies
     cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
-    
+
 def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):
     if os.path.exists(metadata_fn):
         metadata = pd.read_csv(metadata_fn,keep_default_na=False)
@@ -81,7 +81,10 @@ def generate_data_row(video_obj):
                    'author_heartcount',
                    'author_videocount',
                    'author_diggcount',
-                   'author_verified']
+                   'author_verified',
+                   'poi_name',
+                   'poi_address',
+                   'poi_city']
     data_list = []
     data_list.append(video_obj['id'])
     try:
@@ -167,6 +170,18 @@ def generate_data_row(video_obj):
         data_list.append(video_obj['author']['verified'])
     except Exception:
         data_list.append(False)
+    try:
+        data_list.append(video_obj['poi']['name'])
+    except Exception:
+        data_list.append('')
+    try:
+        data_list.append(video_obj['poi']['address'])
+    except Exception:
+        data_list.append('')
+    try:
+        data_list.append(video_obj['poi']['city'])
+    except Exception:
+        data_list.append('')
     data_row = pd.DataFrame(dict(zip(data_header,data_list)),index=[0])
     return data_row
 #currently unused, but leaving it in case it's needed later

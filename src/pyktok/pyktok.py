@@ -295,7 +295,9 @@ def save_tiktok(video_url,
         if save_video == True:
             regex_url = re.findall(url_regex, video_url)[0]
             video_fn = regex_url.replace('/', '_') + '.mp4'
-            tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
+            tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['playAddr']
+            if tt_video_url == '':
+                tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
             headers['referer'] = 'https://www.tiktok.com/'
             # include cookies with the video request
             tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
@@ -307,7 +309,6 @@ def save_tiktok(video_url,
             data_slot = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']
             data_row = generate_data_row(data_slot)
             try:
-                user_id = list(tt_json['UserModule']['users'].keys())[0]
                 data_row.loc[0,"author_verified"] = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['author']
             except Exception:
                 pass

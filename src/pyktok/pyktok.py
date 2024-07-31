@@ -337,7 +337,7 @@ async def get_video_urls(tt_ent,
     tt_list = []
 
     async with TikTokApi() as api:
-        await api.create_sessions(headless,
+        await api.create_sessions(headless=headless,
                                   ms_tokens=[ms_token],
                                   num_sessions=1,
                                   sleep_after=3,
@@ -406,7 +406,7 @@ def save_tiktok_multi_page(tt_ent,
 async def get_comments(video_id,comment_count=30,headless=True):
     comment_list = []
     async with TikTokApi() as api:
-        await api.create_sessions(headless,
+        await api.create_sessions(headless=headless,
                                   ms_tokens=[ms_token],
                                   num_sessions=1,
                                   sleep_after=3,

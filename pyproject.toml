@@ -19,14 +19,14 @@ classifiers = [
 ]
 
 dependencies = ["browser-cookie3",
-				"beautifulsoup4",
-				"numpy",
-				"pandas",
-				"playwright==1.37.0; python_version < '3.12'",
-				"playwright==1.39.0; python_version >= '3.12'",
-				"requests",
-				"streamlit",
-				"TikTokApi"]
+		"beautifulsoup4",
+		"numpy",
+		"pandas",
+		"playwright==1.37.0; python_version < '3.12'",
+		"playwright==1.39.0; python_version >= '3.12'",
+		"requests",
+		"streamlit",
+		"TikTokApi"]
 
 [project.urls]
 "Homepage" = "https://github.com/dfreelon/pyktok"

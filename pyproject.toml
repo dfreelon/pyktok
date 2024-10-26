@@ -18,8 +18,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = ["browser-cookie3",
-		"beautifulsoup4",
+dependencies = ["beautifulsoup4",
+                "browser-cookie3",
 		"numpy",
 		"pandas",
 		"playwright==1.37.0; python_version < '3.12'",

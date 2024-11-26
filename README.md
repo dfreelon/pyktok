@@ -47,7 +47,7 @@ Historically it has been prudent to run the `specify_browser` function first to 
 
 Please note that functions that start with "get" will return data to working memory, while those starting with "save" will save data to disk without returning anything.
 
-To download a single TikTok video and one line of metadata to the file "video_data.csv" (`'chrome'` can be changed to `'firefox'` if necessary):
+To download a single TikTok video and one line of metadata to the file "video_data.csv":
 ```python    
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
 	        True,

@@ -51,15 +51,13 @@ To download a single TikTok video and one line of metadata to the file "video_da
 ```python    
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
 	        True,
-                'video_data.csv',
-		'chrome')
+                'video_data.csv')
 ```    
 To download another TikTok video and add its metadata to the same file as above:
 ```python   
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 	        True,
-                'video_data.csv',
-		'chrome')
+                'video_data.csv')
 ```   
 To download metadata ONLY from the video URLs used in the preceding two lines of code (to also download the videos, change ```False``` to ```True```). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
 ```python

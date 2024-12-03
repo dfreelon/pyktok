@@ -23,7 +23,8 @@ Please note that [a number of US states have banned TikTok on state-owned device
 
 **Installation**
 
-```pip install pyktok```
+1. ```pip install pyktok```
+2. You'll also need to install the binaries for playwright using the `playwright install` command in your local console.
 
 **Requirements**
 

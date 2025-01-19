@@ -1,5 +1,5 @@
 ## Pyktok
-$\color{red} NOTE:\ 7/9/24:\ \textbf{save\\_tiktok\\_multi\\_page}\ and\ \textbf{save\\_tiktok\\_comments}\ work\\ again!$
+$\color{red} NOTE:\ 2025-01-19:\ A\ nationwide\ TikTok\ ban\ is\ now\ in\ effect\ in\ the\ US.\ All\ Pyktok\ updates\ are\ suspended\ until\ the\ ban\ is\ lifted.\$
 
 **A simple module to collect video, text, and metadata from TikTok.**
 

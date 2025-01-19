@@ -1,5 +1,7 @@
 ## Pyktok
-$\color{red} NOTE:\ 2025-01-19:\ A\ nationwide\ TikTok\ ban\ is\ now\ in\ effect\ in\ the\ US.\ All\ Pyktok\ updates\ are\ suspended\ until\ the\ ban\ is\ lifted.\$
+$\color{red} NOTE:\ 2025-01-19:\ A\ nationwide\ TikTok\ ban\ is\ now\ in\ effect\ in\ the\ US.\$
+
+$\color{red}All\ Pyktok\ updates\ are\ suspended\ until\ the\ ban\ is\ lifted.\$
 
 **A simple module to collect video, text, and metadata from TikTok.**
 

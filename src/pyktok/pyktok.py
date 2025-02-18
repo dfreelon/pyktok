@@ -51,7 +51,7 @@ class BrowserNotSpecifiedError(Exception):
 
 def specify_browser(browser):
     global cookies
-    cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
+    cookies = getattr(browser_cookie3,browser)(domain_name='.tiktok.com')
 
 def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):
     if os.path.exists(metadata_fn):

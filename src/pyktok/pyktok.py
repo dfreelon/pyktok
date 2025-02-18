@@ -199,7 +199,7 @@ def get_tiktok_json(video_url,browser_name=None):
         raise BrowserNotSpecifiedError
     global cookies
     if browser_name is not None:
-        cookies = getattr(browser_cookie3,browser_name)(domain_name='www.tiktok.com')
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='.tiktok.com')
     tt = requests.get(video_url,
                       headers=headers,
                       cookies=cookies,
@@ -219,7 +219,7 @@ def alt_get_tiktok_json(video_url,browser_name=None):
         raise BrowserNotSpecifiedError
     global cookies
     if browser_name is not None:
-        cookies = getattr(browser_cookie3,browser_name)(domain_name='www.tiktok.com')
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='.tiktok.com')
     tt = requests.get(video_url,
                       headers=headers,
                       cookies=cookies,

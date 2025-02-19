@@ -298,8 +298,11 @@ def save_tiktok(video_url,
         if save_video == True:
             regex_url = re.findall(url_regex, video_url)[0]
             video_fn = regex_url.replace('/', '_') + '.mp4'
-            tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['playAddr']
-            if tt_video_url == '':
+            try:
+                tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['playAddr']
+                if tt_video_url == '':
+                    raise
+            except:
                 tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
             headers['referer'] = 'https://www.tiktok.com/'
             # include cookies with the video request

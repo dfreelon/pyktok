@@ -51,7 +51,7 @@ class BrowserNotSpecifiedError(Exception):
 
 def specify_browser(browser):
     global cookies
-    cookies = getattr(browser_cookie3,browser)(domain_name='www.tiktok.com')
+    cookies = getattr(browser_cookie3,browser)(domain_name='.tiktok.com')
 
 def deduplicate_metadata(metadata_fn,video_df,dedup_field='video_id'):
     if os.path.exists(metadata_fn):
@@ -199,7 +199,7 @@ def get_tiktok_json(video_url,browser_name=None):
         raise BrowserNotSpecifiedError
     global cookies
     if browser_name is not None:
-        cookies = getattr(browser_cookie3,browser_name)(domain_name='www.tiktok.com')
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='.tiktok.com')
     tt = requests.get(video_url,
                       headers=headers,
                       cookies=cookies,
@@ -219,7 +219,7 @@ def alt_get_tiktok_json(video_url,browser_name=None):
         raise BrowserNotSpecifiedError
     global cookies
     if browser_name is not None:
-        cookies = getattr(browser_cookie3,browser_name)(domain_name='www.tiktok.com')
+        cookies = getattr(browser_cookie3,browser_name)(domain_name='.tiktok.com')
     tt = requests.get(video_url,
                       headers=headers,
                       cookies=cookies,
@@ -267,7 +267,10 @@ def save_tiktok(video_url,
             else:
                 regex_url = re.findall(url_regex, video_url)[0]
                 video_fn = regex_url.replace('/', '_') + '.mp4'
-                tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
+                try:
+                    tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
+                except:
+                    tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
                 headers['referer'] = 'https://www.tiktok.com/'
                 # include cookies with the video request
                 tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
@@ -295,8 +298,11 @@ def save_tiktok(video_url,
         if save_video == True:
             regex_url = re.findall(url_regex, video_url)[0]
             video_fn = regex_url.replace('/', '_') + '.mp4'
-            tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['playAddr']
-            if tt_video_url == '':
+            try:
+                tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['playAddr']
+                if tt_video_url == '':
+                    raise
+            except:
                 tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video']['downloadAddr']
             headers['referer'] = 'https://www.tiktok.com/'
             # include cookies with the video request

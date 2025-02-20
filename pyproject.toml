@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyktok"
-version = "0.0.30"
+version = "0.0.31"
 authors = [
   { name="Deen Freelon", email="dfreelon@gmail.com"},
 ]
 description = "A package for collecting TikTok videos and metadata."
 readme = "README.md"
 license = { file="LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: BSD License",
@@ -22,11 +22,10 @@ dependencies = ["beautifulsoup4",
                 "browser-cookie3",
 		"numpy",
 		"pandas",
-		"playwright==1.37.0; python_version < '3.12'",
-		"playwright==1.39.0; python_version >= '3.12'",
+		"playwright>=1.15.0; python_version < '3.12'",
 		"requests",
 		"streamlit",
-		"TikTokApi"]
+		"TikTokApi >= 7.0.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/dfreelon/pyktok"

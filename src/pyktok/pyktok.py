@@ -236,7 +236,7 @@ def alt_get_tiktok_json(video_url,browser_name=None):
     return tt_json
 
 def save_tiktok(video_url,
-                save_video=True,
+                save_video=False,
                 metadata_fn='',
                 browser_name=None,
                 return_fns=False):
@@ -365,10 +365,10 @@ async def get_video_urls(tt_ent,
         for n, i in enumerate(author_list):
             video_url = url_p1 + author_list[n] + url_p2 + id_list[n]
             video_list.append(video_url)
-    return video_list
+    return video_list[:video_ct]
 
 def save_tiktok_multi_urls(video_urls,
-                           save_video=True,
+                           save_video=False,
                            metadata_fn='',
                            sleep=4,
                            browser_name=None):
@@ -387,7 +387,7 @@ def save_tiktok_multi_page(tt_ent,
                            ent_type="user",
                            video_ct=30,
                            headless=True,
-                           save_video=True,
+                           save_video=False,
                            metadata_fn='',
                            sleep=4,
                            browser_name=None):

@@ -1,6 +1,9 @@
 ## Pyktok
-$\color{red} NOTE:\ 7/9/24:\ \textbf{save\\_tiktok\\_multi\\_page}\ and\ \textbf{save\\_tiktok\\_comments}\ work\\ again!$
+<!---
+/* $\color{red} NOTE:\ 2025-01-19:\ A\ nationwide\ TikTok\ ban\ is\ now\ in\ effect\ in\ the\ US.\$ */
 
+$\color{red}All\ Pyktok\ updates\ are\ suspended\ until\ the\ ban\ is\ lifted.\$
+-->
 **A simple module to collect video, text, and metadata from TikTok.**
 
 We developed Pyktok ("pick-tock") because none of the existing TikTok data collection utilities we could find suited our needs. Pyktok pulls its data directly from the JSON objects embedded in Tiktok pages and from hidden APIs with no public documentation. Here are its major features:
@@ -23,7 +26,8 @@ Please note that [a number of US states have banned TikTok on state-owned device
 
 **Installation**
 
-```pip install pyktok```
+1. ```pip install pyktok```
+2. You'll also need to install the binaries for playwright using the `playwright install` (and possibly `playwright install-deps`) command in your local console.
 
 **Requirements**
 
@@ -47,19 +51,17 @@ Historically it has been prudent to run the `specify_browser` function first to 
 
 Please note that functions that start with "get" will return data to working memory, while those starting with "save" will save data to disk without returning anything.
 
-To download a single TikTok video and one line of metadata to the file "video_data.csv" (`'chrome'` can be changed to `'firefox'` if necessary):
+To download a single TikTok video and one line of metadata to the file "video_data.csv":
 ```python    
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7106594312292453675?is_copy_url=1&is_from_webapp=v1',
 	        True,
-                'video_data.csv',
-		'chrome')
+                'video_data.csv')
 ```    
 To download another TikTok video and add its metadata to the same file as above:
 ```python   
 pyk.save_tiktok('https://www.tiktok.com/@tiktok/video/7011536772089924869?is_copy_url=1&is_from_webapp=v1',
 	        True,
-                'video_data.csv',
-		'chrome')
+                'video_data.csv')
 ```   
 To download metadata ONLY from the video URLs used in the preceding two lines of code (to also download the videos, change ```False``` to ```True```). If TikTok autobans the scraper, try changing the 1 to a higher number to increase the number of seconds between executions.
 ```python

@@ -39,7 +39,7 @@ Pyktok relies on the following external packages:
  - [Pandas](https://pandas.pydata.org/)
  - [Requests](https://pypi.org/project/requests/)
  - [Streamlit](https://streamlit.io/)
- - [TikTokApi](https://github.com/davidteather/TikTok-Api)
+ - [TikTokApi (>=7.1)](https://github.com/davidteather/TikTok-Api)
 
 **Usage**
 

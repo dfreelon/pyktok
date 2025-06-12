@@ -6,6 +6,8 @@ Created on Thu Jul 14 14:06:01 2022
 """
 
 import asyncio
+from typing import Optional
+
 import browser_cookie3
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -22,8 +24,8 @@ import time
 global cookies
 cookies = dict()
 
-url_regex = '(?<=\.com/)(.+?)(?=\?|$)'
-video_id_regex = '(?<=/video/)([0-9]+)'
+url_regex = r'(?<=\.com/)(.+?)(?=\?|$)'
+video_id_regex = r'(?<=/video/)([0-9]+)'
 
 ms_token = os.environ.get(
     "ms_token", None
@@ -247,50 +249,52 @@ def alt_get_tiktok_json(video_url, browser_name=None):
     return tt_json
 
 
-def save_tiktok(video_url,
+def save_tiktok(content_url,
                 save_video=False,
                 metadata_fn='',
                 browser_name=None,
-                return_fns=False):
+                dir_path: Optional[str] = None):
     if 'cookies' not in globals() and browser_name is None:
         raise BrowserNotSpecifiedError
     if save_video == False and metadata_fn == '':
         print('Since save_video and metadata_fn are both False/blank, the program did nothing.')
         return
 
-    tt_json = get_tiktok_json(video_url, browser_name)
+    tt_json = get_tiktok_json(content_url, browser_name)
+
+    content_file_paths: list[str] = []
 
     if tt_json is not None:
         video_id = list(tt_json['ItemModule'].keys())[0]
 
         if save_video == True:
-            regex_url = re.findall(url_regex, video_url)[0]
+            regex_url = re.findall(url_regex, content_url)[0]
             if 'imagePost' in tt_json['ItemModule'][video_id]:
-                slidecount = 1
+                slide_count = 1
                 for slide in tt_json['ItemModule'][video_id]['imagePost']['images']:
-                    video_fn = regex_url.replace('/', '_') + '_slide_' + str(slidecount) + '.jpeg'
-                    tt_video_url = slide['imageURL']['urlList'][0]
+                    content_file_name = regex_url.replace('/', '_') + '_slide_' + str(slide_count) + '.jpeg'
+                    content_url = slide['imageURL']['urlList'][0]
                     headers['referer'] = 'https://www.tiktok.com/'
                     # include cookies with the video request
-                    tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
-                    with open(video_fn, 'wb') as fn:
-                        fn.write(tt_video.content)
-                    slidecount += 1
+                    tt_video_response = requests.get(content_url, allow_redirects=True, headers=headers, cookies=cookies)
+                    content_file_path = _save(dir_path, content_file_name, tt_video_response.content)
+                    content_file_paths.append(content_file_path)
+                    slide_count += 1
             else:
-                regex_url = re.findall(url_regex, video_url)[0]
-                video_fn = regex_url.replace('/', '_') + '.mp4'
+                regex_url = re.findall(url_regex, content_url)[0]
+                content_file_name = regex_url.replace('/', '_') + '.mp4'
                 try:
-                    tt_video_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
+                    content_url = tt_json['ItemModule'][video_id]['video']['downloadAddr']
                 except:
-                    tt_video_url = \
+                    content_url = \
                         tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video'][
                             'downloadAddr']
                 headers['referer'] = 'https://www.tiktok.com/'
                 # include cookies with the video request
-                tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
-            with open(video_fn, 'wb') as fn:
-                fn.write(tt_video.content)
-            print("Saved video\n", tt_video_url, "\nto\n", os.getcwd())
+                tt_video_response = requests.get(content_url, allow_redirects=True, headers=headers, cookies=cookies)
+                content_file_path = _save(dir_path, content_file_name, tt_video_response.content)
+                content_file_paths.append(content_file_path)
+                print(f"Saved content {content_url} to {content_file_path}")
 
         if metadata_fn != '':
             data_slot = tt_json['ItemModule'][video_id]
@@ -308,31 +312,51 @@ def save_tiktok(video_url,
             combined_data.to_csv(metadata_fn, index=False)
 
     else:
-        tt_json = alt_get_tiktok_json(video_url, browser_name)
+        tt_json = alt_get_tiktok_json(content_url, browser_name)
+        video_detail = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']
+
+        item_info = video_detail.get('itemInfo')
+
+        if item_info is None:
+            status_code = video_detail.get('statusCode')
+            if status_code is not None:
+                print(f"{status_code}: {video_detail.get('statusMsg')}")
+                return None, None
+            print(tt_json)
+            raise "no itemInfo found in tt_json"
+
+        item_struct = item_info['itemStruct']
         if save_video == True:
-            regex_url = re.findall(url_regex, video_url)[0]
-            video_fn = regex_url.replace('/', '_') + '.mp4'
+            regex_url = re.findall(url_regex, content_url)[0]
+            content_file_name = regex_url.replace('/', '_') + '.mp4'
             try:
-                tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video'][
-                    'playAddr']
-                if tt_video_url == '':
+                content_url = item_struct['video']['playAddr']
+                if content_url == '':
                     raise
             except:
-                tt_video_url = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video'][
-                    'downloadAddr']
+                content_url = item_struct['video']['downloadAddr']
             headers['referer'] = 'https://www.tiktok.com/'
+            content_file_path = os.path.join(dir_path, content_file_name) if dir_path else content_file_name
+
+            print(f"Saving {content_url} to {content_file_path}")
+
             # include cookies with the video request
-            tt_video = requests.get(tt_video_url, allow_redirects=True, headers=headers, cookies=cookies)
-            with open(video_fn, 'wb') as fn:
-                fn.write(tt_video.content)
-            print("Saved video\n", video_url, "\nto\n", os.getcwd())
+            with requests.get(content_url, headers=headers, stream=True, cookies=cookies,
+                              timeout=60) as tt_video_response:
+                tt_video_response.raise_for_status()
+                with open(content_file_path, "wb") as f:
+                    for chunk in tt_video_response.iter_content(chunk_size=8192):
+                        if chunk:  # Skip keep-alive new chunks
+                            f.write(chunk)
+
+            content_file_paths.append(content_file_path)
+            print(f"Saved content {content_url} to {content_file_path}")
 
         if metadata_fn != '':
-            data_slot = tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']
+            data_slot = item_struct
             data_row = generate_data_row(data_slot)
             try:
-                data_row.loc[0, "author_verified"] = \
-                    tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['author']
+                data_row.loc[0, "author_verified"] = item_struct['author']
             except Exception:
                 pass
             if os.path.exists(metadata_fn):
@@ -341,10 +365,9 @@ def save_tiktok(video_url,
             else:
                 combined_data = data_row
             combined_data.to_csv(metadata_fn, index=False)
-            print("Saved metadata for video\n", video_url, "\nto\n", os.getcwd())
+            print("Saved metadata for video\n", content_url, "\nto\n", os.getcwd())
 
-        if return_fns == True:
-            return {'video_fn': video_fn, 'metadata_fn': metadata_fn}
+        return content_file_paths, metadata_fn
 
 
 # the function below is based on this one: https://github.com/davidteather/TikTok-Api/blob/main/examples/user_example.py
@@ -396,7 +419,8 @@ def save_tiktok_multi_urls(video_urls,
                            save_video=False,
                            metadata_fn='',
                            sleep=4,
-                           browser_name=None):
+                           browser_name=None,
+                           dir_path: Optional[str] = None):
     if 'cookies' not in globals() and browser_name is None:
         raise BrowserNotSpecifiedError
     if type(video_urls) is str:
@@ -404,7 +428,7 @@ def save_tiktok_multi_urls(video_urls,
     else:
         tt_urls = video_urls
     for u in tt_urls:
-        save_tiktok(u, save_video, metadata_fn, browser_name)
+        save_tiktok(u, save_video, metadata_fn, browser_name, dir_path=dir_path)
         time.sleep(random.randint(1, sleep))
     print('Saved', len(tt_urls), 'videos and/or lines of metadata')
 
@@ -478,3 +502,16 @@ async def get_user_data(tt_ent,
             tt_list.append(video.as_dict)
 
     return user.as_dict, tt_list
+
+
+def _save(dir_path: str, file_name: str, content: bytes):
+    file_path = os.path.join(dir_path, file_name) if dir_path else file_name
+    print(f"Saving {file_path}")
+
+    if os.path.exists(file_path):
+        print(f"File {file_path} already exists. Skipping save.")
+        return file_path
+
+    with open(file_path, 'wb') as fn:
+        fn.write(content)
+    return file_path

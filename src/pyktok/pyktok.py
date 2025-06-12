@@ -245,7 +245,7 @@ def alt_get_tiktok_json(video_url, browser_name=None):
     except AttributeError:
         print(
             "The function encountered a downstream error and did not deliver any data, which happens periodically for various reasons. Please try again later.")
-        return
+        return None
     return tt_json
 
 
@@ -258,7 +258,7 @@ def save_tiktok(content_url,
         raise BrowserNotSpecifiedError
     if save_video == False and metadata_fn == '':
         print('Since save_video and metadata_fn are both False/blank, the program did nothing.')
-        return
+        return None
 
     tt_json = get_tiktok_json(content_url, browser_name)
 
@@ -267,7 +267,7 @@ def save_tiktok(content_url,
     if tt_json is not None:
         video_id = list(tt_json['ItemModule'].keys())[0]
 
-        if save_video == True:
+        if save_video:
             regex_url = re.findall(url_regex, content_url)[0]
             if 'imagePost' in tt_json['ItemModule'][video_id]:
                 slide_count = 1
@@ -290,11 +290,16 @@ def save_tiktok(content_url,
                         tt_json["__DEFAULT_SCOPE__"]['webapp.video-detail']['itemInfo']['itemStruct']['video'][
                             'downloadAddr']
                 headers['referer'] = 'https://www.tiktok.com/'
-                # include cookies with the video request
-                tt_video_response = requests.get(content_url, allow_redirects=True, headers=headers, cookies=cookies)
-                content_file_path = _save(dir_path, content_file_name, tt_video_response.content)
-                content_file_paths.append(content_file_path)
-                print(f"Saved content {content_url} to {content_file_path}")
+                content_file_path = os.path.join(dir_path, content_file_name) if dir_path else content_file_name
+                if os.path.exists(content_file_path):
+                    print(f"File {content_file_path} already exists, skipping download")
+                    content_file_paths.append(content_file_path)
+                else:
+                    # include cookies with the video request
+                    tt_video_response = requests.get(content_url, allow_redirects=True, headers=headers, cookies=cookies)
+                    content_file_path = _save(dir_path, content_file_name, tt_video_response.content)
+                    content_file_paths.append(content_file_path)
+                    print(f"Saved content {content_url} to {content_file_path}")
 
         if metadata_fn != '':
             data_slot = tt_json['ItemModule'][video_id]
@@ -310,6 +315,8 @@ def save_tiktok(content_url,
             else:
                 combined_data = data_row
             combined_data.to_csv(metadata_fn, index=False)
+            return None
+        return None
 
     else:
         tt_json = alt_get_tiktok_json(content_url, browser_name)
@@ -337,6 +344,11 @@ def save_tiktok(content_url,
                 content_url = item_struct['video']['downloadAddr']
             headers['referer'] = 'https://www.tiktok.com/'
             content_file_path = os.path.join(dir_path, content_file_name) if dir_path else content_file_name
+
+            if os.path.exists(content_file_path):
+                print(f"File {content_file_path} already exists, skipping download")
+                content_file_paths.append(content_file_path)
+                return content_file_paths, metadata_fn
 
             print(f"Saving {content_url} to {content_file_path}")
 
@@ -485,6 +497,7 @@ def save_tiktok_comments(video_url,
         print(len(comment_results), "comments saved.")
     if return_comments:
         return comment_results
+    return None
 
 
 async def get_user_data(tt_ent,

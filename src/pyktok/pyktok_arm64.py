@@ -1,25 +1,33 @@
 # -*- coding: utf-8 -*-
 """
+ARM64 Compatible version of pyktok
 Created on Thu Jul 14 14:06:01 2022
 
 @author: freelon
+Modified for ARM64 compatibility
 """
 
 import asyncio
 from typing import Optional
+import json
+import os
+import random
+import re
+import time
+from datetime import datetime
 
 import browser_cookie3
 from bs4 import BeautifulSoup
-from datetime import datetime
-import json
 import numpy as np
-import os
 import pandas as pd
-import random
-import re
 import requests
-from TikTokApi import TikTokApi
-import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 
 global cookies
 cookies = dict()
@@ -34,13 +42,10 @@ ms_token = os.environ.get(
 headers = {'Accept-Encoding': 'gzip, deflate, sdch',
            'Accept-Language': 'en-US,en;q=0.8',
            'Upgrade-Insecure-Requests': '1',
-           'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+           'User-Agent': 'Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
            'Cache-Control': 'max-age=0',
            'Connection': 'keep-alive'}
-context_dict = {'viewport': {'width': 0,
-                             'height': 0},
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36'}
 
 runsb_rec = (
     'If pyktok does not operate as expected, you may find it helpful to run the \'specify_browser\' function. \'specify_browser\' takes as its sole argument a string representing a browser installed on your system, e.g. "chrome," "firefox," "edge," etc.')
@@ -191,18 +196,6 @@ def generate_data_row(video_obj):
         data_list.append('')
     data_row = pd.DataFrame(dict(zip(data_header, data_list)), index=[0])
     return data_row
-
-
-# currently unused, but leaving it in case it's needed later
-'''
-def fix_tt_url(tt_url):
-    if 'www.' not in tt_url.lower():
-        url_parts = tt_url.split('://')
-        fixed_url = url_parts[0] + '://www.' + url_parts[1]
-        return fixed_url
-    else:
-        return tt_url
-'''
 
 
 def get_tiktok_json(video_url, browser_name=None):
@@ -382,49 +375,58 @@ def save_tiktok(content_url,
         return content_file_paths, metadata_fn
 
 
-# the function below is based on this one: https://github.com/davidteather/TikTok-Api/blob/main/examples/user_example.py
-
-async def get_video_urls(tt_ent,
-                         ent_type="user",
-                         video_ct=30,
-                         headless=True):
-    if ent_type not in ['user', 'hashtag', 'video_related']:
-        raise Exception('Only allowed `ent_type` values are "user", "hashtag", or "video_related".')
-
-    url_p1 = "https://www.tiktok.com/@"
-    url_p2 = "/video/"
-    tt_list = []
-
-    async with TikTokApi() as api:
-        await api.create_sessions(headless=headless,
-                                  ms_tokens=[ms_token],
-                                  num_sessions=1,
-                                  sleep_after=3,
-                                  context_options=context_dict)
+def get_video_urls_selenium(tt_ent, ent_type="user", video_ct=30, headless=True):
+    """
+    ARM64-compatible version using Selenium instead of TikTokApi
+    """
+    if ent_type not in ['user', 'hashtag']:
+        raise Exception('Only allowed `ent_type` values are "user" or "hashtag".')
+    
+    # Setup Chrome options for ARM64
+    chrome_options = Options()
+    if headless:
+        chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+    
+    # Use webdriver-manager to handle Chrome driver installation
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
+    try:
+        url_p1 = "https://www.tiktok.com/@"
+        url_p2 = "/video/"
+        tt_list = []
+        
         if ent_type == 'user':
-            ent = api.user(tt_ent)
+            url = f"{url_p1}{tt_ent}"
         elif ent_type == 'hashtag':
-            ent = api.hashtag(name=tt_ent)
-        else:
-            ent = api.video(url=tt_ent)
-
-        if ent_type in ['user', 'hashtag']:
-            async for video in ent.videos(count=video_ct):
-                tt_list.append(video.as_dict)
-        else:
-            async for related_video in ent.related_videos(count=video_ct):
-                tt_list.append(related_video.as_dict)
-
-    id_list = [i['id'] for i in tt_list]
-    if ent_type == 'user':
-        video_list = [url_p1 + tt_ent + url_p2 + i for i in id_list]
-    else:
-        author_list = [i['author']['uniqueId'] for i in tt_list]
-        video_list = []
-        for n, i in enumerate(author_list):
-            video_url = url_p1 + author_list[n] + url_p2 + id_list[n]
-            video_list.append(video_url)
-    return video_list[:video_ct]
+            url = f"https://www.tiktok.com/tag/{tt_ent}"
+        
+        driver.get(url)
+        time.sleep(3)
+        
+        # Scroll to load more videos
+        for i in range(video_ct // 10 + 1):
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
+        
+        # Find video links
+        video_links = driver.find_elements(By.CSS_SELECTOR, 'a[href*="/video/"]')
+        
+        video_urls = []
+        for link in video_links[:video_ct]:
+            href = link.get_attribute('href')
+            if href and '/video/' in href:
+                video_urls.append(href)
+        
+        return video_urls[:video_ct]
+        
+    finally:
+        driver.quit()
 
 
 def save_tiktok_multi_urls(video_urls,
@@ -453,31 +455,50 @@ def save_tiktok_multi_page(tt_ent,
                            metadata_fn='',
                            sleep=4,
                            browser_name=None):
-    video_urls = asyncio.run(get_video_urls(tt_ent,
-                                            ent_type,
-                                            video_ct,
-                                            headless))
-    save_tiktok_multi_urls(video_urls,
-                           save_video,
-                           metadata_fn,
-                           sleep,
-                           browser_name)
+    video_urls = get_video_urls_selenium(tt_ent, ent_type, video_ct, headless)
+    save_tiktok_multi_urls(video_urls, save_video, metadata_fn, sleep, browser_name)
 
 
-# the function below is based on this one: https://github.com/davidteather/TikTok-Api/blob/main/examples/comment_example.py
-
-async def get_comments(video_id, comment_count=30, headless=True):
-    comment_list = []
-    async with TikTokApi() as api:
-        await api.create_sessions(headless=headless,
-                                  ms_tokens=[ms_token],
-                                  num_sessions=1,
-                                  sleep_after=3,
-                                  context_options=context_dict)
-        video = api.video(id=video_id)
-        async for comment in video.comments(count=comment_count):
-            comment_list.append(comment.as_dict)
-    return pd.DataFrame(comment_list)
+def get_comments_selenium(video_url, comment_count=30, headless=True):
+    """
+    ARM64-compatible version for getting comments using Selenium
+    """
+    chrome_options = Options()
+    if headless:
+        chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+    
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
+    try:
+        driver.get(video_url)
+        time.sleep(3)
+        
+        # Scroll to load comments
+        for i in range(comment_count // 10 + 1):
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
+        
+        # Extract comments (this is a simplified version)
+        comments = []
+        comment_elements = driver.find_elements(By.CSS_SELECTOR, '[data-e2e="comment-item"]')
+        
+        for element in comment_elements[:comment_count]:
+            try:
+                comment_text = element.find_element(By.CSS_SELECTOR, '[data-e2e="comment-level1"]').text
+                comments.append({'text': comment_text})
+            except:
+                continue
+        
+        return pd.DataFrame(comments)
+        
+    finally:
+        driver.quit()
 
 
 def save_tiktok_comments(video_url,
@@ -486,13 +507,12 @@ def save_tiktok_comments(video_url,
                          headless=True,
                          save_comments=True,
                          return_comments=True):
-    video_id = int(re.findall(video_id_regex, video_url)[0])
-    comment_results = asyncio.run(get_comments(video_id, comment_count, headless))
+    comment_results = get_comments_selenium(video_url, comment_count, headless)
     if save_comments:
         if filename == '':
             regex_url = re.findall(url_regex, video_url)[0]
             filename = regex_url.replace('/', '_') + '_comments.csv'
-        data_to_save = deduplicate_metadata(filename, comment_results, 'cid')
+        data_to_save = deduplicate_metadata(filename, comment_results, 'text')
         data_to_save.to_csv(filename, mode='w', index=False)
         print(len(comment_results), "comments saved.")
     if return_comments:
@@ -500,21 +520,48 @@ def save_tiktok_comments(video_url,
     return None
 
 
-async def get_user_data(tt_ent,
-                        headless=True, ):
-    tt_list = []
-    async with TikTokApi() as api:
-        await api.create_sessions(headless=headless,
-                                  ms_tokens=[ms_token],
-                                  num_sessions=1,
-                                  sleep_after=3,
-                                  context_options=context_dict)
-
-        user = api.user(tt_ent)
-        async for video in user.videos(count=5):
-            tt_list.append(video.as_dict)
-
-    return user.as_dict, tt_list
+def get_user_data_selenium(tt_ent, headless=True):
+    """
+    ARM64-compatible version for getting user data using Selenium
+    """
+    chrome_options = Options()
+    if headless:
+        chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+    
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
+    try:
+        url = f"https://www.tiktok.com/@{tt_ent}"
+        driver.get(url)
+        time.sleep(3)
+        
+        # Extract user data from page
+        user_data = {}
+        try:
+            # This is a simplified extraction - you may need to adjust selectors
+            username = driver.find_element(By.CSS_SELECTOR, '[data-e2e="user-title"]').text
+            user_data['username'] = username
+        except:
+            pass
+        
+        # Get first few videos
+        video_links = driver.find_elements(By.CSS_SELECTOR, 'a[href*="/video/"]')
+        video_data = []
+        for link in video_links[:5]:
+            href = link.get_attribute('href')
+            if href:
+                video_data.append({'url': href})
+        
+        return user_data, video_data
+        
+    finally:
+        driver.quit()
 
 
 def _save(dir_path: str, file_name: str, content: bytes):

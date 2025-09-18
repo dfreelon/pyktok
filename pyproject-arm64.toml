@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyktok-arm64"
+version = "0.0.31"
+authors = [
+  { name="Deen Freelon", email="dfreelon@gmail.com"},
+]
+description = "A package for collecting TikTok videos and metadata - ARM64 compatible version."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = ["beautifulsoup4",
+                "browser-cookie3",
+		"numpy",
+		"pandas",
+		"requests",
+		"streamlit",
+		"selenium>=4.0.0",
+		"webdriver-manager"]
+
+[project.urls]
+"Homepage" = "https://github.com/dfreelon/pyktok"
